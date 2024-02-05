@@ -94,6 +94,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Application.h" />
+    <ClInclude Include="src\Core\Macros.h" />
+    <ClInclude Include="src\ECS\Components.h" />
+    <ClInclude Include="src\ECS\ControlledEntity.h" />
+    <ClInclude Include="src\ECS\Entity.h" />
+    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\Renderer\Window.h" />
+    <ClInclude Include="src\Sandbox\Game.h" />
+    <ClInclude Include="src\Tools\Input.h" />
+    <ClInclude Include="src\Tools\Math.h" />
+    <ClInclude Include="src\Tools\Positioner.h" />
+    <ClInclude Include="src\Tools\Random.h" />
+    <ClInclude Include="src\Tools\Time.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -512,7 +525,15 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Application.cpp" />
     <ClCompile Include="src\Core\EntryPoint\main.cpp" />
+    <ClCompile Include="src\ECS\Components.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\Renderer\Window.cpp" />
+    <ClCompile Include="src\Sandbox\Game.cpp" />
+    <ClCompile Include="src\Tools\Input.cpp" />
+    <ClCompile Include="src\Tools\Positioner.cpp" />
+    <ClCompile Include="src\Tools\Time.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
