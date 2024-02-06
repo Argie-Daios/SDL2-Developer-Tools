@@ -40,8 +40,6 @@ void Renderer::Draw(entt::registry& reg)
 		glm::vec2 size = meshComponent.GetSize();
 
 		SDL_Rect source = meshComponent.GetSource();
-		source.w *= transformComponent.GetScale().x;
-		source.h *= transformComponent.GetScale().y;
 
 		SDL_Rect destination = { (int)position.x, (int)position.y, (int)size.x, (int)size.y };
 		destination.w *= transformComponent.GetScale().x;

@@ -13,6 +13,7 @@ Game::Game()
 		auto& transformComponent = m_Entity1->GetComponent<Transform>();
 		auto& spriteComponent = m_Entity1->AddComponent<SpriteRenderer>("assets/textures/X.png");
 		transformComponent.SetPosition(glm::vec2(500, 200));
+		transformComponent.SetScale(glm::vec2(0.5f, 0.5f));
 	}
 
 	{
