@@ -12,17 +12,6 @@ struct Children
 	std::list<entt::entity> children;
 };
 
-struct Sprite
-{
-	SDL_Texture* texture = nullptr;
-	glm::vec3 tintColor = glm::ivec3(255.0f, 255.0f, 255.0f);
-	glm::vec2 texSize = glm::ivec2(0.0f, 0.0f);
-
-	Sprite() = default;
-	Sprite(const Sprite&) = default;
-	~Sprite() { SDL_DestroyTexture(texture); }
-};
-
 struct Component
 {
 public:

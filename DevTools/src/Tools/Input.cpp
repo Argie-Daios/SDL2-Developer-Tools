@@ -17,6 +17,16 @@ static SDL_Keycode ScancodeToKeycode(Key key)
 	case Key::DOWN: return SDLK_DOWN;
 	case Key::LEFT: return SDLK_LEFT;
 	case Key::RIGHT: return SDLK_RIGHT;
+	case Key::NUM0: return SDLK_KP_0;
+	case Key::NUM1: return SDLK_KP_1;
+	case Key::NUM2: return SDLK_KP_2;
+	case Key::NUM3: return SDLK_KP_3;
+	case Key::NUM4: return SDLK_KP_4;
+	case Key::NUM5: return SDLK_KP_5;
+	case Key::NUM6: return SDLK_KP_6;
+	case Key::NUM7: return SDLK_KP_7;
+	case Key::NUM8: return SDLK_KP_8;
+	case Key::NUM9: return SDLK_KP_9;
 	}
 }
 

@@ -1,8 +1,27 @@
 #include "Positioner.h"
 
-glm::vec2 Positioner::PositionItemInRect(glm::vec2 rectXY, glm::vec2 rectWH, glm::vec2 itemXY, glm::vec2 itemWH,
-	PositionType positioning)
+#include "Core/Application.h"
+
+void Positioner::PositionItemInWindow(Entity entity, PositionType positioning)
 {
+	auto& transformComponent = entity.GetComponent<Transform>();
+	auto& meshComponent = entity.GetComponent<Mesh>();
+
+	int width = 1, height = 1;
+
+	if (meshComponent.GetTexture())
+	{
+		width = meshComponent.GetSize().x;
+		height = meshComponent.GetSize().y;
+	}
+
+	glm::vec2 itemXY = transformComponent.GetPosition();
+	glm::vec2 itemWH = glm::vec2(width, height);
+
+	glm::vec2 rectXY = glm::ivec2(0, 0);
+	glm::vec2 rectWH = glm::ivec2(Application::Get()->GetWindow()->GetWidth(),
+		Application::Get()->GetWindow()->GetHeight());
+
 	switch (positioning)
 	{
 	case PositionType::LEFT_UP:
@@ -58,5 +77,5 @@ glm::vec2 Positioner::PositionItemInRect(glm::vec2 rectXY, glm::vec2 rectWH, glm
 	}
 	}
 
-	return itemXY;
+	transformComponent.SetPosition(itemXY);
 }

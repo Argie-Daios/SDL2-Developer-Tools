@@ -71,3 +71,12 @@ SDL_Texture* Renderer::CreateTextureFromSurface(SDL_Surface* surface)
 
 	return texture;
 }
+
+glm::ivec2 Renderer::GetTextureDimensions(SDL_Texture* texture)
+{
+	glm::ivec2 dimensions;
+
+	SDL_QueryTexture(texture, nullptr, nullptr, &dimensions.x, &dimensions.y);
+
+	return dimensions;
+}

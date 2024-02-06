@@ -4,6 +4,7 @@
 #include "Tools/Input.h"
 
 Application* Application::s_Instance = nullptr;
+Ref<Window> Application::window = nullptr;
 
 Application::Application()
 {

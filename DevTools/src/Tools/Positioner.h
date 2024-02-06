@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ECS/Entity.h"
+
 #include <glm/glm.hpp>
 
 enum class PositionType
@@ -18,5 +20,5 @@ enum class PositionType
 class Positioner
 {
 public:
-	static glm::vec2 PositionItemInRect(glm::vec2 rectXY, glm::vec2 rectWH, glm::vec2 itemXY, glm::vec2 itemWH, PositionType positioning = PositionType::CENTER);
+	static void PositionItemInWindow(Entity entity, PositionType positioning = PositionType::CENTER);
 };

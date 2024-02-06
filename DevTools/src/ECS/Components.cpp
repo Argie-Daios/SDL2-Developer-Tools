@@ -78,14 +78,9 @@ SpriteRenderer::SpriteRenderer(const std::string& image_path)
 
 	auto& mesh = e.GetComponent<Mesh>();
 
-	int texWidth, texHeight;
-	SDL_Texture* texture = Renderer::CreateTexture(image_path);
+	mesh.SetTexture(image_path);
 
-	SDL_QueryTexture(texture, nullptr, nullptr, &texWidth, &texHeight);
-
-	mesh.SetTexture(texture);
-	mesh.SetSize(glm::vec2(texWidth, texHeight));
-	mesh.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
+	UpdateMesh();
 }
 
 void SpriteRenderer::ChangeTexture(std::string image_path)

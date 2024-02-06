@@ -19,15 +19,17 @@ public:
 	virtual void Update();
 	virtual void Run();
 
+	Ref<Window> GetWindow() const { return window; }
+
 	inline static Application* Get() { return s_Instance; }
 private:
 	void UpdateAnimations();
 protected:
 	static Application* s_Instance;
 
-	Ref<Window> window;
+	static Ref<Window> window;
 	
-	Ref<Entity>m_Entity;
+	Ref<Entity> m_Entity;
 
 	entt::registry m_Registry;
 
@@ -36,5 +38,4 @@ protected:
 	friend class Entity;
 	friend class Renderer;
 	friend class MoveEntity;
-	friend class Solitaire;
 };
