@@ -39,4 +39,44 @@ Game::Game()
 void Game::Update()
 {
 	Application::Update();
+
+	// Camera Position to Entity
+	#if 0
+		if (Input::IsKeyDown(Key::NUM7))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT_UP);
+		}
+		if (Input::IsKeyDown(Key::NUM8))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::UP);
+		}
+		if (Input::IsKeyDown(Key::NUM9))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT_UP);
+		}
+		if (Input::IsKeyDown(Key::NUM4))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT);
+		}
+		if (Input::IsKeyDown(Key::NUM5))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::CENTER);
+		}
+		if (Input::IsKeyDown(Key::NUM6))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT);
+		}
+		if (Input::IsKeyDown(Key::NUM1))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT_DOWN);
+		}
+		if (Input::IsKeyDown(Key::NUM2))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::DOWN);
+		}
+		if (Input::IsKeyDown(Key::NUM3))
+		{
+			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT_DOWN);
+		}
+	#endif
 }

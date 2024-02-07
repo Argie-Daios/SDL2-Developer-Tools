@@ -8,6 +8,7 @@
 #include <vector>
 
 class Entity;
+struct Transform;
 
 class Application
 {
@@ -22,14 +23,14 @@ public:
 	Ref<Window> GetWindow() const { return window; }
 
 	inline static Application* Get() { return s_Instance; }
+	static Transform& GetCameraTransform();
 private:
 	void UpdateAnimations();
 protected:
 	static Application* s_Instance;
 
 	static Ref<Window> window;
-	
-	Ref<Entity> m_Entity;
+	static Ref<Entity> s_Camera;
 
 	entt::registry m_Registry;
 

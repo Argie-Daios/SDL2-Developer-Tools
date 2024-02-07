@@ -5,6 +5,7 @@
 
 Application* Application::s_Instance = nullptr;
 Ref<Window> Application::window = nullptr;
+Ref<Entity> Application::s_Camera = nullptr;
 
 Application::Application()
 {
@@ -13,11 +14,18 @@ Application::Application()
 	window = CreateRef<Window>("Application", 1440, 810);
 
 	Renderer::Init(window->Get());
+
+	s_Camera = CreateRef<Entity>();
 }
 
 Application::~Application()
 {
 	Renderer::Shutdown();
+}
+
+Transform& Application::GetCameraTransform()
+{ 
+	return s_Camera->GetComponent<Transform>();
 }
 
 void Application::Event(SDL_Event* event)

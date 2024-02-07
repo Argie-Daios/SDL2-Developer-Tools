@@ -9,6 +9,7 @@ public:
 
 	virtual void Update() override;
 private:
+	float cameraSpeed = 2.0f;
 
 	Ref<Entity> m_Entity1;
 	Ref<Entity> m_Entity2;

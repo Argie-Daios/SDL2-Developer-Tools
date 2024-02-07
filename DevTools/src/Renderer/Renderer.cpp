@@ -3,6 +3,7 @@
 #include "Core/Macros.h"
 #include "ECS/Entity.h"
 #include "Tools/Positioner.h"
+#include "Core/Application.h"
 
 #include <SDL_image.h>
 
@@ -41,7 +42,7 @@ void Renderer::Draw(entt::registry& reg)
 
 		SDL_Rect source = meshComponent.GetSource();
 
-		SDL_Rect destination = { (int)position.x, (int)position.y, (int)size.x, (int)size.y };
+		SDL_Rect destination = { (int)position.x - Application::GetCameraTransform().GetPosition().x, (int)position.y - Application::GetCameraTransform().GetPosition().y, (int)size.x, (int)size.y};
 		destination.w *= transformComponent.GetScale().x;
 		destination.h *= transformComponent.GetScale().y;
 

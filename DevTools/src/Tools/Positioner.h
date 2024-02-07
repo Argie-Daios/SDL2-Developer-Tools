@@ -21,4 +21,5 @@ class Positioner
 {
 public:
 	static void PositionItemInWindow(Entity entity, PositionType positioning = PositionType::CENTER);
+	static void PositionCameraToEntity(Entity entity, PositionType positioning = PositionType::CENTER);
 };
