@@ -3,6 +3,8 @@
 #include "ECS/ControlledEntity.h"
 #include "Tools/Input.h"
 
+#include <cpproutine/Coroutine.h>
+
 Application* Application::s_Instance = nullptr;
 Ref<Window> Application::window = nullptr;
 Ref<Entity> Application::s_Camera = nullptr;
@@ -21,11 +23,6 @@ Application::Application()
 Application::~Application()
 {
 	Renderer::Shutdown();
-}
-
-Transform& Application::GetCameraTransform()
-{ 
-	return s_Camera->GetComponent<Transform>();
 }
 
 void Application::Event(SDL_Event* event)
@@ -78,6 +75,8 @@ void Application::Run()
 	while (m_Running)
 	{
 		Time::Tick();
+
+		cpproutine::CoroutineManager::Update();
 
 		Event(&Input::Event());
 		Update();

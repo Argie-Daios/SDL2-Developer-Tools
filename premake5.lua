@@ -15,6 +15,7 @@ workspace "DevTools"
 	IncludeDir["SDL2_ttf"] = "DevTools/vendor/SDL_ttf/include";
 	IncludeDir["entt"] = "DevTools/vendor/entt/include";
 	IncludeDir["glm"] = "DevTools/vendor/glm";
+	IncludeDir["cpproutine"] = "DevTools/vendor/cpproutine/include"
 
 	LibraryDir = {}
 	LibraryDir["SDL2"] = "vendor/SDL2/lib/x64/SDL2.lib";
@@ -40,6 +41,9 @@ project "DevTools"
 
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
+
+		"%{prj.name}/vendor/cpproutine/include/cpproutine/**.h",
+		"%{prj.name}/vendor/cpproutine/include/cpproutine/**.cpp"
 	}
 
 	includedirs
@@ -50,6 +54,7 @@ project "DevTools"
 		"%{IncludeDir.SDL2_ttf}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.cpproutine}"
 	}
 
 	libdirs

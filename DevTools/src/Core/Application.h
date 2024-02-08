@@ -21,9 +21,9 @@ public:
 	virtual void Run();
 
 	Ref<Window> GetWindow() const { return window; }
+	Ref<Entity> GetCamera() { return s_Camera; }
 
 	inline static Application* Get() { return s_Instance; }
-	static Transform& GetCameraTransform();
 private:
 	void UpdateAnimations();
 protected:

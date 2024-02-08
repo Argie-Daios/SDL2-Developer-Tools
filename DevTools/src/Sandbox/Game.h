@@ -2,6 +2,11 @@
 
 #include "Core/Application.h"
 
+namespace cpproutine
+{
+	class IEnumerator;
+}
+
 class Game : public Application
 {
 public:

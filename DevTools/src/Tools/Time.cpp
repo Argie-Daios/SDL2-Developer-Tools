@@ -16,7 +16,7 @@ void Time::Tick()
 {
 	float time = SDL_GetTicks();
 
-	m_Time = time - m_LastFrameTime;
+	m_Time = MillisecondsToSeconds(time - m_LastFrameTime);
 
 	m_LastFrameTime = time;
 }

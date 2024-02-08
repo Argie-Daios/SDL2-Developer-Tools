@@ -10,6 +10,7 @@ public:
 	inline static float GetTimeMultiplier() { return m_TimeMultiplier; }
 
 	inline static float SecondsToMilliseconds(float value) { return value * 1000.0f; }
+	inline static float MillisecondsToSeconds(float value) { return value / 1000.0f; }
 
 	inline static float DeltaTime() { return m_Time; }
 private:

@@ -58,7 +58,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>GAME_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\SDL2\include;vendor\SDL2_mixer\include;vendor\SDL_ttf\include;vendor\entt\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\SDL2\include;vendor\SDL2_mixer\include;vendor\SDL_ttf\include;vendor\entt\include;vendor\glm;vendor\cpproutine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -76,7 +76,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>GAME_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\SDL2\include;vendor\SDL2_mixer\include;vendor\SDL_ttf\include;vendor\entt\include;vendor\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\SDL2\include;vendor\SDL2_mixer\include;vendor\SDL_ttf\include;vendor\entt\include;vendor\glm;vendor\cpproutine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -107,6 +107,10 @@
     <ClInclude Include="src\Tools\Positioner.h" />
     <ClInclude Include="src\Tools\Random.h" />
     <ClInclude Include="src\Tools\Time.h" />
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\Coroutine.h" />
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\IEnumerator.h" />
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\UUID.h" />
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\YieldRetrunType.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_features.hpp" />
     <ClInclude Include="vendor\glm\glm\detail\_fixes.hpp" />
@@ -534,6 +538,8 @@
     <ClCompile Include="src\Tools\Input.cpp" />
     <ClCompile Include="src\Tools\Positioner.cpp" />
     <ClCompile Include="src\Tools\Time.cpp" />
+    <ClCompile Include="vendor\cpproutine\include\cpproutine\Coroutine.cpp" />
+    <ClCompile Include="vendor\cpproutine\include\cpproutine\UUID.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

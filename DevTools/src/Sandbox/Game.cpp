@@ -10,7 +10,7 @@ Game::Game()
 {
 	{
 		m_Entity1 = CreateRef<Entity>();
-		auto& transformComponent = m_Entity1->GetComponent<Transform>();
+		auto& transformComponent = m_Entity1->transform();
 		auto& spriteComponent = m_Entity1->AddComponent<SpriteRenderer>("assets/textures/X.png");
 		transformComponent.SetPosition(glm::vec2(500, 200));
 		transformComponent.SetScale(glm::vec2(0.5f, 0.5f));
@@ -18,7 +18,7 @@ Game::Game()
 
 	{
 		m_Entity2 = CreateRef<Entity>();
-		auto& transformComponent = m_Entity2->GetComponent<Transform>();
+		auto& transformComponent = m_Entity2->transform();
 		auto& spriteComponent = m_Entity2->AddComponent<SpriteRenderer>("assets/textures/bounce_ball.png");
 		auto& animationComponent = m_Entity2->AddComponent<Animation>("assets/textures/bounce_ball.png", 8, 70);
 		
@@ -27,21 +27,19 @@ Game::Game()
 
 	{
 		m_Entity3 = CreateRef<Entity>();
-		auto& transformComponent = m_Entity3->GetComponent<Transform>();
+		auto& transformComponent = m_Entity3->transform();
 		auto& textComponent = m_Entity3->AddComponent<Text>("Sample Text", "assets/fonts/arial.ttf", 65, SDL_Color{ 255,0,0,255 });
 
 		transformComponent.SetPosition(glm::vec2(600, 0));
 	}
 }
 
-
-
 void Game::Update()
 {
 	Application::Update();
 
 	// Camera Position to Entity
-	#if 0
+#if 0
 		if (Input::IsKeyDown(Key::NUM7))
 		{
 			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT_UP);
@@ -78,5 +76,5 @@ void Game::Update()
 		{
 			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT_DOWN);
 		}
-	#endif
+#endif
 }

@@ -25,6 +25,15 @@
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
     </Filter>
+    <Filter Include="vendor\cpproutine">
+      <UniqueIdentifier>{4B1F3A2F-B735-38C5-00AD-C3E66C02094D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\cpproutine\include">
+      <UniqueIdentifier>{BE61EBF5-2A24-1F80-73D4-AD0CDFD5F75D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\cpproutine\include\cpproutine">
+      <UniqueIdentifier>{765048CA-6237-0AC2-0B88-70DFF74D8328}</UniqueIdentifier>
+    </Filter>
     <Filter Include="vendor\glm">
       <UniqueIdentifier>{829FC5A8-6E57-07F6-D75E-E051C335A2E6}</UniqueIdentifier>
     </Filter>
@@ -83,6 +92,18 @@
     </ClInclude>
     <ClInclude Include="src\Tools\Time.h">
       <Filter>src\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\Coroutine.h">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\IEnumerator.h">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\UUID.h">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\cpproutine\include\cpproutine\YieldRetrunType.h">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
       <Filter>vendor\glm\glm</Filter>
@@ -1360,6 +1381,12 @@
     </ClCompile>
     <ClCompile Include="src\Tools\Time.cpp">
       <Filter>src\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\cpproutine\include\cpproutine\Coroutine.cpp">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\cpproutine\include\cpproutine\UUID.cpp">
+      <Filter>vendor\cpproutine\include\cpproutine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
