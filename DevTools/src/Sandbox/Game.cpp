@@ -33,7 +33,6 @@ Game::Game()
 		transformComponent.SetPosition(glm::vec2(600, 0));
 	}
 }
-
 void Game::Update()
 {
 	Application::Update();
