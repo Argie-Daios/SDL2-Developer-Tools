@@ -60,12 +60,15 @@ class Input
 public:
 	static bool IsKeyPressed(Key key);
 	static bool IsKeyDown(Key key);
+	static bool IsKeyHold(Key key, float duration);
 	static bool IsMouseButtonPressed(Mouse button);
 	static bool IsMouseButtonUp(Mouse button);
 	static glm::ivec2 GetMousePosition();
 
+	static float GetTimePressed();
 	static SDL_Event& Event() { return s_Event; }
 private:
 	static const Uint8* s_Keystates;
+	static float s_PressedTime;
 	static SDL_Event s_Event;
 };

@@ -1,8 +1,12 @@
 #include "Input.h"
 
+#include "Tools/Time.h"
+
 #include <iostream>
 
+
 const Uint8* Input::s_Keystates = nullptr;
+float Input::s_PressedTime = 0.0f;
 SDL_Event Input::s_Event = SDL_Event();
 
 static SDL_Keycode ScancodeToKeycode(Key key)
@@ -34,13 +38,27 @@ bool Input::IsKeyPressed(Key key)
 {
 	if (!s_Keystates)
 		s_Keystates = SDL_GetKeyboardState(NULL);
-	
+
 	return s_Keystates[(SDL_Scancode)key];
 }
 
 bool Input::IsKeyDown(Key key)
 {
 	return s_Event.type == SDL_KEYDOWN && s_Event.key.repeat == 0 && s_Event.key.keysym.sym == ScancodeToKeycode(key);
+}
+
+bool Input::IsKeyHold(Key key, float duration)
+{
+	if (IsKeyPressed(key))
+	{
+		s_PressedTime += Time::DeltaTime();
+	}
+	else
+	{
+		s_PressedTime = 0.0f;
+	}
+
+	return s_PressedTime >= duration;
 }
 
 bool Input::IsMouseButtonPressed(Mouse button)
@@ -71,4 +89,9 @@ glm::ivec2 Input::GetMousePosition()
 	SDL_GetMouseState(&mouseX, &mouseY);
 
 	return glm::ivec2(mouseX, mouseY);
+}
+
+float Input::GetTimePressed()
+{
+	return s_PressedTime;
 }

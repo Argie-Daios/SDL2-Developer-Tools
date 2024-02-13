@@ -26,6 +26,7 @@ public:
 	inline static Application* Get() { return s_Instance; }
 private:
 	void UpdateAnimations();
+	void UpdateAnimators();
 protected:
 	static Application* s_Instance;
 

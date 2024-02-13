@@ -49,7 +49,7 @@ void Renderer::Draw(entt::registry& reg)
 		destination.w *= transformComponent.GetScale().x;
 		destination.h *= transformComponent.GetScale().y;
 
-		SDL_RenderCopyEx(s_Renderer, meshComponent.GetTexture(), &source, &destination, 0, nullptr, SDL_FLIP_NONE);
+		SDL_RenderCopyEx(s_Renderer, meshComponent.GetTexture(), &source, &destination, 0, nullptr, transformComponent.GetFlip());
 	}
 }
 

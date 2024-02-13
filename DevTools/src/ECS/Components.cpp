@@ -116,8 +116,8 @@ Animation::Animation()
 
 }
 
-Animation::Animation(const std::string& image_path, int frames, float delay)
-	: Component(Entity::recentEntity), frames(frames), delay(delay)
+Animation::Animation(const std::string& image_path, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
+	: Component(Entity::recentEntity), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames), totalRows(totalRows), delay(delay), loop(loop)
 {
 	Entity e = { m_Entity };
 
@@ -126,6 +126,18 @@ Animation::Animation(const std::string& image_path, int frames, float delay)
 	mesh.SetTexture(image_path);
 
 	Animate();
+}
+
+Animation::Animation(const Animation& animation)
+{
+	m_Entity = animation.m_Entity;
+	currentFrames = animation.currentFrames;
+	currentRow = animation.currentRow;
+	totalFrames = animation.totalFrames;
+	totalRows = animation.totalRows;
+	delay = animation.delay;
+	loop = animation.loop;
+	timeElapsed = 0.0f;
 }
 
 void Animation::Animate()
@@ -140,25 +152,102 @@ void Animation::Animate()
 
 	CurrentFrame(frameIndex, texWidth);
 
-	mesh.SetSize(glm::vec2(texWidth, texHeight));
-	mesh.SetSource(SDL_Rect{ frameIndex, 0, texWidth, texHeight });
+	if(loop || (timeElapsed <= delay * (currentFrames - 1))) timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
+
+	mesh.SetSize(glm::vec2(texWidth, texHeight / totalRows));
+	mesh.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth, texHeight / totalRows});
 }
 
 void Animation::CurrentFrame(int& index, int& texWidth)
 {
 	int frameSize;
 
-	if (frames == 0)
+	if (totalFrames == 0)
 	{
 		index = 0;
 		return;
 	}
 
-	frameSize = texWidth / frames;
+	frameSize = texWidth / totalFrames;
 
-	index = ((SDL_GetTicks() / (int)delay) % frames) * frameSize;
+	index = CurrentFrameIndex() * frameSize;
 
 	texWidth = frameSize;
+}
+
+int Animation::CurrentFrameIndex()
+{	
+	int index = (((int)timeElapsed / (int)delay) % currentFrames);
+
+	return index;
+}
+
+// Animator
+
+Animator::Animator()
+	: Component(Entity::recentEntity)
+{
+	
+}
+
+Animator::Animator(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations)
+	: Component(Entity::recentEntity)
+{
+	for (auto element : animations)
+	{
+		element.second->m_Entity = m_Entity;
+		controller.AddAnimation(element.first, element.second);
+	}
+}
+
+void Animator::Update()
+{
+	controller.Update();
+	controller.GetCurrentAnimation()->Animate();
+}
+
+void Animator::AddAnimation(std::string name, Ref<Animation> animation)
+{
+	controller.AddAnimation(name, animation);
+}
+
+void Animator::RemoveAnimation(const std::string& name)
+{
+	controller.RemoveAnimation(name);
+}
+
+void Animator::AddEdge(const std::string& source, const std::string& destination)
+{
+	controller.AddEdge(source, destination);
+}
+
+void Animator::RemoveEdge(const std::string& source, const std::string& destination)
+{
+	controller.RemoveEdge(source, destination);
+}
+
+void Animator::AddParameter(const std::string& name, Type type, void* value)
+{
+	controller.AddParameter(name, type, value);
+}
+void Animator::RemoveParameter(const std::string& name)
+{
+	controller.RemoveParameter(name);
+}
+void Animator::ChangeParameterValue(const std::string& name, void* value)
+{
+	controller.ChangeParameterValue(name, value);
+}
+
+void Animator::AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType)
+{
+	controller.AddConditionOnEdge(source, destination, parameter, operation, valueToCompare, valueToCompareType);
+}
+
+void Animator::RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter)
+{
+	controller.RemoveConditionOffEdge(source, destination, parameter);
 }
 
 // Text

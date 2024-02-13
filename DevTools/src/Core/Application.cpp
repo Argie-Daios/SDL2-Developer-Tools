@@ -53,6 +53,20 @@ void Application::UpdateAnimations()
 	}
 }
 
+void Application::UpdateAnimators()
+{
+	auto view = m_Registry.view<Animator>();
+
+	for (auto entity : view)
+	{
+		Entity e = { entity };
+
+		auto& animatorComponent = e.GetComponent<Animator>();
+
+		animatorComponent.Update();
+	}
+}
+
 void Application::Update()
 {
 	m_Registry.view<Behaviour>().each([=](auto entity, auto& behaviour)
@@ -68,6 +82,7 @@ void Application::Update()
 	});
 
 	UpdateAnimations();
+	UpdateAnimators();
 }
 
 void Application::Run()

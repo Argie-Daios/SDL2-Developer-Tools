@@ -1353,6 +1353,11 @@
     <ClInclude Include="vendor\glm\glm\vector_relational.hpp">
       <Filter>vendor\glm\glm</Filter>
     </ClInclude>
+    <ClInclude Include="src\Tools\AnimationController\AnimationController.h" />
+    <ClInclude Include="src\Tools\AnimationController\Edge.h" />
+    <ClInclude Include="src\Tools\AnimationController\Condition.h" />
+    <ClInclude Include="src\Tools\AnimationController\Parameter.h" />
+    <ClInclude Include="src\Tools\Enums.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -1388,5 +1393,9 @@
     <ClCompile Include="vendor\cpproutine\include\cpproutine\UUID.cpp">
       <Filter>vendor\cpproutine\include\cpproutine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tools\AnimationController\Condition.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\Parameter.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\AnimationController.cpp" />
   </ItemGroup>
 </Project>

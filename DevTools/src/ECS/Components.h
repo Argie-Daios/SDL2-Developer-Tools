@@ -7,6 +7,8 @@
 #include <list>
 #include <entt.hpp>
 
+#include "Tools/AnimationController/AnimationController.h"
+
 struct Children
 {
 	std::list<entt::entity> children;
@@ -33,16 +35,19 @@ public:
 	void SetZValue(float zValue) { this->zValue = zValue; } // Need to make for the children
 	void SetRotation(float rotation) { this->rotation = rotation; } // Need to make for the children
 	void SetScale(const glm::vec2& scale) { this->scale = scale; } // Need to make for the children
+	void SetFlip(SDL_RendererFlip flip) { this->flip = flip; }
 
 	glm::vec2 GetPosition() const { return position; }
 	float GetZValue() const { return zValue; }
 	float GetRotation() const { return rotation; }
 	glm::vec2 GetScale() const { return scale; }
+	SDL_RendererFlip GetFlip() const { return flip; }
 private:
 	glm::vec2 position = glm::vec2(0.0f, 0.0f);
 	float zValue = 0.0f;
 	float rotation = 0.0f;
 	glm::vec2 scale = glm::vec2(1.0f, 1.0f);
+	SDL_RendererFlip flip = SDL_FLIP_NONE;
 
 	friend class Entity;
 };
@@ -88,21 +93,67 @@ struct Animation : public Component
 {
 public:
 	Animation();
-	Animation(const std::string& image_path, int frames = 0, float delay = 0.0f);
-	Animation(const Animation&) = default;
+	Animation(const std::string& image_path, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);
+	Animation(const Animation&);
 
 	void Animate();
 
-	int GetFrames() const { return frames; }
-	float GetDelay() const { return delay; }
+	bool isComplete() { return CurrentFrameIndex() + 1 == currentFrames; }
 
-	void ChangeFrames(int frames) { this->frames = frames; }
+	int GetCurrentFrames() const { return currentFrames; }
+	int GetCurrentRow() const { return currentRow; }
+	int GetTotalFrames() const { return totalFrames; }
+	int GetTotalRows() const { return totalRows; }
+	float GetDelay() const { return delay; }
+	bool GetLoop() const { return loop; }
+
+	void ChangeCurrentFrames(int frames) { this->currentFrames = frames; }
+	void ChangeCurrentRow(int currentRow) { this->currentRow = currentRow; }
+	void ChangeTotalFrames(int totalFrames) { this->totalFrames = totalFrames; }
+	void ChangeTotalRows(int totalRows) { this->totalRows = totalRows; }
 	void ChangeDelay(float delay) { this->delay = delay; }
+	void ChangeLoop(bool loop) { this->loop = loop; }
 private:
 	void CurrentFrame(int& index, int& texWidth);
+	int CurrentFrameIndex();
 private:
-	int frames = 0;
+	int currentFrames = 0;
+	int currentRow = 0;
+	int totalFrames = 0;
+	int totalRows = 0;
 	float delay = 0.0f;
+	bool loop = true;
+
+	float timeElapsed = 0.0f;
+
+	friend struct Animator;
+	friend class AnimationController;
+};
+
+struct Animator : public Component
+{
+public:
+	Animator();
+	Animator(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations);
+	Animator(const Animator&) = default;
+
+	void Update();
+
+	void AddAnimation(std::string name, Ref<Animation> animation);
+	void RemoveAnimation(const std::string& name);
+
+	void AddEdge(const std::string& source, const std::string& destination);
+	void RemoveEdge(const std::string& source, const std::string& destination);
+
+	void AddParameter(const std::string& name, Type type, void* value);
+	void RemoveParameter(const std::string& name);
+	void ChangeParameterValue(const std::string& name, void* value);
+
+	void AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
+		Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType);
+	void RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter);
+private:
+	AnimationController controller;
 };
 
 struct Text : public Component

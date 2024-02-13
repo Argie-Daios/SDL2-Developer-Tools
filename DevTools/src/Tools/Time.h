@@ -13,6 +13,7 @@ public:
 	inline static float MillisecondsToSeconds(float value) { return value / 1000.0f; }
 
 	inline static float DeltaTime() { return m_Time; }
+	static float TotalTime();
 private:
 	static float m_Time;
 	static float m_LastFrameTime;

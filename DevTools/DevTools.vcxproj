@@ -102,11 +102,16 @@
     <ClInclude Include="src\Renderer\Renderer.h" />
     <ClInclude Include="src\Renderer\Window.h" />
     <ClInclude Include="src\Sandbox\Game.h" />
+    <ClInclude Include="src\Tools\AnimationController\AnimationController.h" />
+    <ClInclude Include="src\Tools\AnimationController\Condition.h" />
+    <ClInclude Include="src\Tools\AnimationController\Edge.h" />
+    <ClInclude Include="src\Tools\AnimationController\Parameter.h" />
     <ClInclude Include="src\Tools\Input.h" />
     <ClInclude Include="src\Tools\Math.h" />
     <ClInclude Include="src\Tools\Positioner.h" />
     <ClInclude Include="src\Tools\Random.h" />
     <ClInclude Include="src\Tools\Time.h" />
+    <ClInclude Include="src\Tools\Enums.h" />
     <ClInclude Include="vendor\cpproutine\include\cpproutine\Coroutine.h" />
     <ClInclude Include="vendor\cpproutine\include\cpproutine\IEnumerator.h" />
     <ClInclude Include="vendor\cpproutine\include\cpproutine\UUID.h" />
@@ -535,6 +540,10 @@
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Window.cpp" />
     <ClCompile Include="src\Sandbox\Game.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\AnimationController.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\Condition.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
+    <ClCompile Include="src\Tools\AnimationController\Parameter.cpp" />
     <ClCompile Include="src\Tools\Input.cpp" />
     <ClCompile Include="src\Tools\Positioner.cpp" />
     <ClCompile Include="src\Tools\Time.cpp" />

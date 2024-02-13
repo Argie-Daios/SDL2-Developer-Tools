@@ -20,3 +20,8 @@ void Time::Tick()
 
 	m_LastFrameTime = time;
 }
+
+float Time::TotalTime()
+{
+	return MillisecondsToSeconds(SDL_GetTicks());
+}
