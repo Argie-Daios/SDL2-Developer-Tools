@@ -31,36 +31,27 @@ Game::Game()
 			})
 		);
 
-		animationComponent.AddEdge("Idle", "Run");
-		animationComponent.AddEdge("Run", "Idle");
+		animationComponent.AddTwoSideEdge("Idle", "Run", false, false);
+		animationComponent.AddTwoSideEdge("Idle", "Attack", false, false);
+		animationComponent.AddTwoSideEdge("Run", "Attack", false, false);
 
-		animationComponent.AddEdge("Idle", "Attack");
-		animationComponent.AddEdge("Attack", "Idle");
+		animationComponent.AddBoolParameter("Running", false);
+		animationComponent.AddBoolParameter("Attacking", false);
 
-		animationComponent.AddEdge("Run", "Attack");
-		animationComponent.AddEdge("Attack", "Run");
+		animationComponent.AddConditionOnEdgeBool("Idle", "Run", "Running", Operation::OperationFunc::BOOL_IS, true);
+		animationComponent.AddConditionOnEdgeBool("Run", "Idle", "Running", Operation::OperationFunc::BOOL_IS, false);
 
-		animationComponent.AddParameter("Running", Type::BOOL, ValueToVoidPtr(false));
-		animationComponent.AddParameter("Attacking", Type::BOOL, ValueToVoidPtr(false));
+		animationComponent.AddConditionOnEdgeBool("Attack", "Idle", "Running", Operation::OperationFunc::BOOL_IS, false);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Run", "Running", Operation::OperationFunc::BOOL_IS, true);
 
-		animationComponent.AddConditionOnEdge("Idle", "Run", "Running", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(true), Type::BOOL);
-		animationComponent.AddConditionOnEdge("Run", "Idle", "Running", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(false), Type::BOOL);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Idle", "Attacking", Operation::OperationFunc::BOOL_IS, false);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Run", "Attacking", Operation::OperationFunc::BOOL_IS, false);
 
-		animationComponent.AddConditionOnEdge("Attack", "Idle", "Running", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(false), Type::BOOL);
-		animationComponent.AddConditionOnEdge("Attack", "Run", "Running", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(true), Type::BOOL);
-
-		animationComponent.AddConditionOnEdge("Idle", "Attack", "Attacking", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(true), Type::BOOL);
-		animationComponent.AddConditionOnEdge("Run", "Attack", "Attacking", Operation::OperationFunc::BOOL_IS, ValueToVoidPtr(true), Type::BOOL);
+		animationComponent.AddConditionOnEdgeBool("Idle", "Attack", "Attacking", Operation::OperationFunc::BOOL_IS, true);
+		animationComponent.AddConditionOnEdgeBool("Run", "Attack", "Attacking", Operation::OperationFunc::BOOL_IS, true);
 
 		transformComponent.SetPosition(glm::vec2(0, 0));
 		transformComponent.SetScale(glm::vec2(5, 5));
-	}
-
-	{
-		m_Entity3 = CreateRef<Entity>();
-		auto& transformComponent = m_Entity3->transform();
-		auto& spriteComponent = m_Entity3->AddComponent<Text>("-", "assets/fonts/arial.ttf", 50, SDL_Color{ 255,0,0 });
-		transformComponent.SetPosition(glm::vec2(500, 400));
 	}
 }
 
@@ -72,7 +63,7 @@ IEnumerator Game::Attack()
 {
 	m_Entity2->GetComponent<Animator>().ChangeParameterValue("Attacking", ValueToVoidPtr(true));
 
-	yield_return NewReturnType<WaitForSeconds>(Time::MillisecondsToSeconds(12 * 200));
+	yield_return NewReturnType<WaitForSeconds>(Time::MillisecondsToSeconds(12 * 100));
 
 	m_Entity2->GetComponent<Animator>().ChangeParameterValue("Attacking", ValueToVoidPtr(false));
 }
@@ -132,13 +123,13 @@ void Game::Update()
 
 		if (Input::IsKeyPressed(Key::D))
 		{
-			m_Entity2->transform().Translate(glm::vec2(1, 0));
+			m_Entity2->transform().Translate(glm::vec2(300 * Time::DeltaTime(), 0));
 			m_Entity2->transform().SetFlip(SDL_FLIP_NONE);
 			m_Entity2->GetComponent<Animator>().ChangeParameterValue("Running", ValueToVoidPtr(true));
 		}
 		if (Input::IsKeyPressed(Key::A))
 		{
-			m_Entity2->transform().Translate(glm::vec2(-1, 0));
+			m_Entity2->transform().Translate(glm::vec2(-300 * Time::DeltaTime(), 0));
 			m_Entity2->transform().SetFlip(SDL_FLIP_HORIZONTAL);
 			m_Entity2->GetComponent<Animator>().ChangeParameterValue("Running", ValueToVoidPtr(true));
 		}
@@ -151,13 +142,4 @@ void Game::Update()
 		{
 			CoroutineManager::StartCoroutine(Attack());
 		}
-
-		if (Input::IsKeyHold(Key::DOWN, 3))
-		{
-			CoroutineManager::StartCoroutine(Attack());
-		}
-
-		float precentage = Math::Clamp(Input::GetTimePressed() / 3 * 100, 0.0f, 100.0f);
-
-		m_Entity3->GetComponent<Text>().ChangeLabel(to_string_with_precision(precentage, 1) + "%");
 }

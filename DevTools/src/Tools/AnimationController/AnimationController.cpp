@@ -26,33 +26,32 @@ void AnimationController::Update()
 
 	auto elem = m_Animations[m_Entry];
 
-	// std::cout << "Current Animation : " << m_Entry << std::endl;
+	std::cout << "Current Animation : " << m_Entry << std::endl;
 
-	if (elem->isComplete())
+	auto links = m_Links[m_Entry];
+
+	if (links.empty()) return;
+
+	for (auto edge : links)
 	{
-		auto links = m_Links[m_Entry];
-
-		if (links.empty()) return;
-
-		for (auto edge : links)
+		if (!edge.GetExitTime() && edge.m_Conditions.empty()) continue;
+		bool canPass = true;
+		for (auto condition : edge.m_Conditions)
 		{
-			bool canPass = true;
-			for (auto condition : edge.m_Conditions)
+			if (!condition.CheckCondition())
 			{
-				if (!condition.CheckCondition())
-				{
-					canPass = false;
-					break;
-				}
-			}
-			if (canPass)
-			{
-				elem->timeElapsed = 0.0f;
-				m_Entry = edge.m_DestinationAnimationName;
-				return;
+				canPass = false;
+				break;
 			}
 		}
+		if ((!edge.GetExitTime() && canPass) || (elem->isComplete() && canPass))
+		{
+			elem->timeElapsed = 0.0f;
+			m_Entry = edge.m_DestinationAnimationName;
+			return;
+		}
 	}
+
 }
 
 Ref<Animation> AnimationController::GetCurrentAnimation()
@@ -92,13 +91,13 @@ void AnimationController::RemoveAnimation(const std::string& name)
 	// Need to update Entry
 }
 
-void AnimationController::AddEdge(const std::string& source, const std::string& destination)
+void AnimationController::AddEdge(const std::string& source, const std::string& destination, bool hasExitTime)
 {
 	GAME_ASSERT(m_Animations.find(source) != m_Animations.end(), "There is no animation with that name : (" + source + ")");
 	GAME_ASSERT(m_Animations.find(destination) != m_Animations.end(), "There is no animation with that name : (" + destination + ")");
 	GAME_ASSERT(!DoesLinkExists(source, destination), "Link from (" + source + ") to (" + destination + ") already exists");
 
-	m_Links[source].emplace_back(destination);
+	m_Links[source].emplace_back(destination, hasExitTime);
 }
 
 void AnimationController::RemoveEdge(const std::string& source, const std::string& destination)
@@ -119,6 +118,27 @@ void AnimationController::AddParameter(const std::string& name, Type type, void*
 	GAME_ASSERT(m_Parameters.find(name) == m_Parameters.end(), "Parameter (" + name + ") already exists");
 
 	m_Parameters[name] = CreateRef<Parameter>(type, value);
+}
+
+void AnimationController::AddIntParameter(const std::string& name, int value)
+{
+	GAME_ASSERT(m_Parameters.find(name) == m_Parameters.end(), "Parameter (" + name + ") already exists");
+
+	m_Parameters[name] = CreateRef<Parameter>(Type::INT, ValueToVoidPtr<int>(value));
+}
+
+void AnimationController::AddFloatParameter(const std::string& name, float value)
+{
+	GAME_ASSERT(m_Parameters.find(name) == m_Parameters.end(), "Parameter (" + name + ") already exists");
+
+	m_Parameters[name] = CreateRef<Parameter>(Type::FLOAT, ValueToVoidPtr<float>(value));
+}
+
+void AnimationController::AddBoolParameter(const std::string& name, bool value)
+{
+	GAME_ASSERT(m_Parameters.find(name) == m_Parameters.end(), "Parameter (" + name + ") already exists");
+
+	m_Parameters[name] = CreateRef<Parameter>(Type::BOOL, ValueToVoidPtr<bool>(value));
 }
 
 void AnimationController::RemoveParameter(const std::string& name)
@@ -147,17 +167,110 @@ void AnimationController::ChangeParameterValue(const std::string& name, void* va
 	m_Parameters[name]->SetValue(value);
 }
 
+void AnimationController::ChangeIntParameterValue(const std::string& name, int value)
+{
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::INT, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided int");
+
+	m_Parameters[name]->SetValue(ValueToVoidPtr<int>(value));
+}
+
+void AnimationController::ChangeFloatParameterValue(const std::string& name, float value)
+{
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::FLOAT, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided float");
+
+	m_Parameters[name]->SetValue(ValueToVoidPtr<float>(value));
+}
+
+void AnimationController::ChangeBoolParameterValue(const std::string& name, bool value)
+{
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::BOOL, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided bool");
+
+	m_Parameters[name]->SetValue(ValueToVoidPtr<bool>(value));
+}
+
 void AnimationController::AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
 	Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType)
 {
 	GAME_ASSERT(m_Animations.find(source) != m_Animations.end(), "There is no animation with that name : (" + source + ")");
 	GAME_ASSERT(m_Animations.find(destination) != m_Animations.end(), "There is no animation with that name : (" + destination + ")");
 	GAME_ASSERT(DoesLinkExists(source, destination), "Link from (" + source + ") to (" + destination + ") does not exist");
+
+	auto it = m_Parameters.find(parameter);
 	GAME_ASSERT(m_Parameters.find(parameter) != m_Parameters.end(), "Parameter (" + parameter + ") does not exist");
+	GAME_ASSERT(it->second->GetType() == valueToCompareType, "Parameter (" + parameter + ") type does not match the type of the value to compare");
 
 	int index = FindLink(source, destination);
 
 	m_Links[source][index].AddCondition(Condition(*m_Parameters[parameter], operation, valueToCompare, valueToCompareType));
+}
+
+void AnimationController::AddConditionOnEdgeInt(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, int valueToCompare)
+{
+	GAME_ASSERT(m_Animations.find(source) != m_Animations.end(), "There is no animation with that name : (" + source + ")");
+	GAME_ASSERT(m_Animations.find(destination) != m_Animations.end(), "There is no animation with that name : (" + destination + ")");
+	GAME_ASSERT(DoesLinkExists(source, destination), "Link from (" + source + ") to (" + destination + ") does not exist");
+
+	auto it = m_Parameters.find(parameter);
+	GAME_ASSERT(m_Parameters.find(parameter) != m_Parameters.end(), "Parameter (" + parameter + ") does not exist");
+	GAME_ASSERT(it->second->GetType() == Type::INT, "Parameter (" + parameter + ") type does not match the type of the value to compare");
+
+	GAME_ASSERT(isValidOperation(operation, Type::INT), "Invalid operation");
+
+	int index = FindLink(source, destination);
+
+	m_Links[source][index].AddCondition(Condition(*m_Parameters[parameter], operation, ValueToVoidPtr<int>(valueToCompare),
+		Type::INT));
+}
+
+void AnimationController::AddConditionOnEdgeFloat(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, float valueToCompare)
+{
+	GAME_ASSERT(m_Animations.find(source) != m_Animations.end(), "There is no animation with that name : (" + source + ")");
+	GAME_ASSERT(m_Animations.find(destination) != m_Animations.end(), "There is no animation with that name : (" + destination + ")");
+	GAME_ASSERT(DoesLinkExists(source, destination), "Link from (" + source + ") to (" + destination + ") does not exist");
+
+	auto it = m_Parameters.find(parameter);
+	GAME_ASSERT(m_Parameters.find(parameter) != m_Parameters.end(), "Parameter (" + parameter + ") does not exist");
+	GAME_ASSERT(it->second->GetType() == Type::FLOAT, "Parameter (" + parameter + ") type does not match the type of the value to compare");
+
+	GAME_ASSERT(isValidOperation(operation, Type::FLOAT), "Invalid operation");
+
+	int index = FindLink(source, destination);
+
+	m_Links[source][index].AddCondition(Condition(*m_Parameters[parameter], operation, ValueToVoidPtr<float>(valueToCompare),
+		Type::FLOAT));
+}
+
+void AnimationController::AddConditionOnEdgeBool(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, bool valueToCompare)
+{
+	GAME_ASSERT(m_Animations.find(source) != m_Animations.end(), "There is no animation with that name : (" + source + ")");
+	GAME_ASSERT(m_Animations.find(destination) != m_Animations.end(), "There is no animation with that name : (" + destination + ")");
+	GAME_ASSERT(DoesLinkExists(source, destination), "Link from (" + source + ") to (" + destination + ") does not exist");
+
+	auto it = m_Parameters.find(parameter);
+	GAME_ASSERT(m_Parameters.find(parameter) != m_Parameters.end(), "Parameter (" + parameter + ") does not exist");
+	GAME_ASSERT(it->second->GetType() == Type::BOOL, "Parameter (" + parameter + ") type does not match the type of the value to compare");
+
+	GAME_ASSERT(isValidOperation(operation, Type::BOOL), "Invalid operation");
+
+	int index = FindLink(source, destination);
+
+	m_Links[source][index].AddCondition(Condition(*m_Parameters[parameter], operation, ValueToVoidPtr<bool>(valueToCompare),
+		Type::BOOL));
 }
 
 void AnimationController::RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter)

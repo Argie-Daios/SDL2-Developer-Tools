@@ -91,9 +91,9 @@ void Application::Run()
 	{
 		Time::Tick();
 
-		cpproutine::CoroutineManager::Update();
 
 		Event(&Input::Event());
+		cpproutine::CoroutineManager::Update();
 		Update();
 
 		Renderer::Begin();

@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-Edge::Edge(std::string destinationName)
-	: m_DestinationAnimationName(destinationName)
+Edge::Edge(std::string destinationName, bool hasExitTime)
+	: m_DestinationAnimationName(destinationName), hasExitTime(hasExitTime)
 {
 
 }

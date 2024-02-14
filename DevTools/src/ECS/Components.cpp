@@ -216,9 +216,15 @@ void Animator::RemoveAnimation(const std::string& name)
 	controller.RemoveAnimation(name);
 }
 
-void Animator::AddEdge(const std::string& source, const std::string& destination)
+void Animator::AddEdge(const std::string& source, const std::string& destination, bool hasExitTime)
 {
-	controller.AddEdge(source, destination);
+	controller.AddEdge(source, destination, hasExitTime);
+}
+
+void Animator::AddTwoSideEdge(const std::string& source, const std::string& destination, bool hasExitTimeSourceToDestination, bool hasExitTimeDestinationToSource)
+{
+	AddEdge(source, destination, hasExitTimeSourceToDestination);
+	AddEdge(destination, source, hasExitTimeDestinationToSource);
 }
 
 void Animator::RemoveEdge(const std::string& source, const std::string& destination)
@@ -230,19 +236,69 @@ void Animator::AddParameter(const std::string& name, Type type, void* value)
 {
 	controller.AddParameter(name, type, value);
 }
+
+void Animator::AddIntParameter(const std::string& name, int value)
+{
+	controller.AddIntParameter(name, value);
+}
+
+void Animator::AddFloatParameter(const std::string& name, float value)
+{
+	controller.AddFloatParameter(name, value);
+}
+
+void Animator::AddBoolParameter(const std::string& name, bool value)
+{
+	controller.AddBoolParameter(name, value);
+}
+
 void Animator::RemoveParameter(const std::string& name)
 {
 	controller.RemoveParameter(name);
 }
+
 void Animator::ChangeParameterValue(const std::string& name, void* value)
 {
 	controller.ChangeParameterValue(name, value);
+}
+
+void Animator::ChangeIntParameterValue(const std::string& name, int value)
+{
+	controller.ChangeIntParameterValue(name, value);
+}
+
+void Animator::ChangeFloatParameterValue(const std::string& name, float value)
+{
+	controller.ChangeFloatParameterValue(name, value);
+}
+
+void Animator::ChangeBoolParameterValue(const std::string& name, bool value)
+{
+	controller.ChangeBoolParameterValue(name, value);
 }
 
 void Animator::AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
 	Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType)
 {
 	controller.AddConditionOnEdge(source, destination, parameter, operation, valueToCompare, valueToCompareType);
+}
+
+void Animator::AddConditionOnEdgeInt(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, int valueToCompare)
+{
+	controller.AddConditionOnEdgeInt(source, destination, parameter, operation, valueToCompare);
+}
+
+void Animator::AddConditionOnEdgeFloat(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, float valueToCompare)
+{
+	controller.AddConditionOnEdgeFloat(source, destination, parameter, operation, valueToCompare);
+}
+
+void Animator::AddConditionOnEdgeBool(const std::string& source, const std::string& destination, const std::string& parameter,
+	Operation::OperationFunc operation, bool valueToCompare)
+{
+	controller.AddConditionOnEdgeBool(source, destination, parameter, operation, valueToCompare);
 }
 
 void Animator::RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter)

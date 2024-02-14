@@ -44,6 +44,21 @@ private:
 	friend class Condition;
 };
 
+constexpr bool isValidOperation(Operation::OperationFunc func, Type type)
+{
+	switch (type)
+	{
+	case Type::INT: return func == Operation::OperationFunc::INT_EQUALS || func == Operation::OperationFunc::INT_NOT_EQUALS
+		|| func == Operation::OperationFunc::INT_LESS || func == Operation::OperationFunc::INT_GREATER;
+	case Type::FLOAT: return func == Operation::OperationFunc::FLOAT_EQUALS || func == Operation::OperationFunc::FLOAT_NOT_EQUALS
+		|| func == Operation::OperationFunc::FLOAT_LESS || func == Operation::OperationFunc::FLOAT_GREATER;
+	case Type::BOOL: return func == Operation::OperationFunc::BOOL_IS;
+	}
+
+	GAME_ASSERT(false, "Not such type");
+	return false;
+}
+
 class Condition
 {
 public:

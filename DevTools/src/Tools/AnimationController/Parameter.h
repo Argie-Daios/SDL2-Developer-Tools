@@ -15,6 +15,19 @@ constexpr Type StringToType(std::string type)
 	return Type();
 }
 
+constexpr std::string TypeToString(Type type)
+{
+	switch (type)
+	{
+	case Type::INT: return "int";
+	case Type::FLOAT: return "float";
+	case Type::BOOL: return "bool";
+	}
+
+	GAME_ASSERT(false, "Wrong Type");
+	return std::string();
+}
+
 template<typename T>
 constexpr void* ValueToVoidPtr(T value)
 {
