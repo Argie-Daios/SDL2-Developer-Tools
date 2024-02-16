@@ -6,6 +6,37 @@
 #include <SDL_ttf.h>
 #include <iostream>
 
+namespace Utils {
+
+	static SDL_Texture* LoadFont(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color)
+	{
+		TTF_Font* font = TTF_OpenFont(font_path.c_str(), font_size);
+
+		if (!font)
+		{
+			std::cout << "FONT NULL" << std::endl;
+		}
+
+		auto text_surface = TTF_RenderText_Solid(font, label.c_str(), color);
+
+		if (!text_surface)
+		{
+			std::cout << "SURFACE NULL" << std::endl;
+		}
+
+		auto text_texture = Renderer::CreateTextureFromSurface(text_surface);
+
+		if (!text_texture)
+		{
+			std::cout << "TEXTURE NULL" << std::endl;
+		}
+
+		SDL_FreeSurface(text_surface);
+
+		return text_texture;
+	}
+}
+
 entt::entity Entity::recentEntity = entt::null;
 
 // Transform
@@ -24,33 +55,6 @@ Transform::Transform(const glm::vec2& position, float zValue, float rotation, co
 
 }
 
-void Transform::SetZValue(float zValue) 
-{
-	Entity en = { m_Entity };
-	this->zValue = zValue;
-
-	for (auto& child : en.GetComponent<Children>().children)
-	{
-		Entity ent = { child };
-		auto& transformComponent = ent.transform();
-		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
-	}
-
-	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
-}
-
-void Transform::Translate(const glm::vec2& translation)
-{
-	Entity en = { m_Entity };
-	position += translation;
-
-	for (auto& child : en.GetComponent<Children>().children)
-	{
-		Entity ent = { child };
-		ent.GetComponent<Transform>().Translate(translation);
-	}
-}
-
 void Transform::SetPosition(const glm::vec2& position)
 {
 	Entity en = { m_Entity };
@@ -67,16 +71,82 @@ void Transform::SetPosition(const glm::vec2& position)
 	}
 }
 
+void Transform::Translate(const glm::vec2& translation)
+{
+	Entity en = { m_Entity };
+	position += translation;
+
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		ent.GetComponent<Transform>().Translate(translation);
+	}
+}
+
+void Transform::SetZValue(float zValue)
+{
+	Entity en = { m_Entity };
+	this->zValue = zValue;
+
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		auto& transformComponent = ent.transform();
+		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
+	}
+
+	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
+}
+
+void Transform::SetRotation(float rotation) 
+{ 
+	Entity en = { m_Entity };
+	this->rotation = rotation;
+
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		auto& transformComponent = ent.transform();
+		transformComponent.SetRotation(transformComponent.GetRotation() + this->rotation);
+	}
+}
+
+void Transform::SetScale(const glm::vec2& scale)
+{ 
+	Entity en = { m_Entity };
+	this->scale = scale;
+
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		auto& transformComponent = ent.transform();
+		transformComponent.SetScale(transformComponent.GetScale() + this->scale);
+	}
+} 
+
+void Transform::SetFlip(SDL_RendererFlip flip) 
+{ 
+	Entity en = { m_Entity };
+	this->flip = flip;
+
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		auto& transformComponent = ent.transform();
+		transformComponent.SetFlip(this->flip);
+	}
+}
+
 // Sprite Renderer
 
 SpriteRenderer::SpriteRenderer()
-	: Component(Entity::recentEntity), texture(nullptr), tintColor(255.0f, 255.0f, 255.0f), source{ 0,0,0,0 }
+	: Component(Entity::recentEntity), texture_path("-"), texture(nullptr), tintColor(255.0f, 255.0f, 255.0f), source{0,0,0,0}
 {
 
 }
 
 SpriteRenderer::SpriteRenderer(const std::string& image_path)
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), texture_path(image_path)
 {
 	ChangeTexture(image_path);
 }
@@ -95,6 +165,8 @@ void SpriteRenderer::ChangeTexture(SDL_Texture* texture)
 
 void SpriteRenderer::UpdateSprite()
 {
+	if (!texture) return;
+
 	int texWidth, texHeight;
 	Entity en = { m_Entity };
 
@@ -107,13 +179,13 @@ void SpriteRenderer::UpdateSprite()
 // Animation
 
 Animation::Animation()
-	: Component(Entity::recentEntity), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0)
+	: Component(Entity::recentEntity), texture_path("-"), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0)
 {
 
 }
 
 Animation::Animation(const std::string& image_path, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
-	: Component(Entity::recentEntity), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
+	: Component(Entity::recentEntity), texture_path(image_path), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
 	totalRows(totalRows), delay(delay), loop(loop)
 {
 	Entity e = { m_Entity };
@@ -143,6 +215,7 @@ void Animation::Animate()
 
 	int texWidth, texHeight, frameIndex;
 
+	if (texture_path != spriteRenderer.GetTexturePath()) spriteRenderer.ChangeTexture(texture_path);
 	SDL_QueryTexture(spriteRenderer.GetTexture(), nullptr, nullptr, &texWidth, &texHeight);
 
 	CurrentFrame(frameIndex, texWidth);
@@ -302,37 +375,6 @@ void Animator::RemoveConditionOffEdge(const std::string& source, const std::stri
 }
 
 // Text
-
-namespace Utils {
-
-	static SDL_Texture* LoadFont(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color)
-	{
-		TTF_Font* font = TTF_OpenFont(font_path.c_str(), font_size);
-
-		if (!font)
-		{
-			std::cout << "FONT NULL" << std::endl;
-		}
-
-		auto text_surface = TTF_RenderText_Solid(font, label.c_str(), color);
-
-		if (!text_surface)
-		{
-			std::cout << "SURFACE NULL" << std::endl;
-		}
-
-		auto text_texture = Renderer::CreateTextureFromSurface(text_surface);
-
-		if (!text_texture)
-		{
-			std::cout << "TEXTURE NULL" << std::endl;
-		}
-
-		SDL_FreeSurface(text_surface);
-
-		return text_texture;
-	}
-}
 
 Text::Text()
 	: Component(Entity::recentEntity), label("Text"), font_path("assets/fonts/arial.ttf"), font_size(10),

@@ -29,13 +29,12 @@ public:
 	Transform(const glm::vec2& position, float zValue = 0.0f, float rotation = 0.0f, const glm::vec2& scale = glm::vec2(1.0f, 1.0f));
 	Transform(const Transform&) = default;
 
-	void Translate(const glm::vec2& translation);
-
 	void SetPosition(const glm::vec2& position);
-	void SetZValue(float zValue); // Need to make for the children
-	void SetRotation(float rotation) { this->rotation = rotation; } // Need to make for the children
-	void SetScale(const glm::vec2& scale) { this->scale = scale; } // Need to make for the children
-	void SetFlip(SDL_RendererFlip flip) { this->flip = flip; }
+	void Translate(const glm::vec2& translation);
+	void SetZValue(float zValue);
+	void SetRotation(float rotation);
+	void SetScale(const glm::vec2& scale);
+	void SetFlip(SDL_RendererFlip flip);
 	void SetSize(glm::vec2 size) { this->size = size; } // May need to make for the children
 
 	glm::vec2 GetPosition() const { return position; }
@@ -69,6 +68,7 @@ public:
 	void SetSource(SDL_Rect src) { source = src; }
 
 	SDL_Texture* GetTexture() const { return texture; }
+	std::string GetTexturePath() const { return texture_path; }
 	glm::vec3 GetColor() const { return tintColor; }
 	SDL_Color GetSDLColor() const { return SDL_Color{ (unsigned char)(int)tintColor.r, (unsigned char)(int)tintColor.g, (unsigned char)(int)tintColor.b }; }
 	SDL_Rect GetSource() const { return source; }
@@ -76,6 +76,7 @@ private:
 	void UpdateSprite();
 private:
 	SDL_Texture* texture = nullptr;
+	std::string texture_path;
 	glm::vec3 tintColor = glm::ivec3(255.0f, 255.0f, 255.0f);
 	SDL_Rect source;
 };
@@ -108,6 +109,7 @@ private:
 	void CurrentFrame(int& index, int& texWidth);
 	int CurrentFrameIndex();
 private:
+	std::string texture_path;
 	int currentFrames = 0;
 	int currentRow = 0;
 	int totalFrames = 0;

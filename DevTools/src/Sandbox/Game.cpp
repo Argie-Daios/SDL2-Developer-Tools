@@ -17,8 +17,6 @@ Game::Game()
 		transformComponent.SetZValue(2.0f);
 
 		Positioner::PositionItemInWindow(*m_Entity1, PositionType::CENTER);
-
-		std::cout << transformComponent.GetPosition().x << "," << transformComponent.GetPosition().y << std::endl;
 	}
 
 	{
@@ -28,6 +26,8 @@ Game::Game()
 			std::initializer_list({
 				AnimationNode("Idle", CreateRef<Animation>("assets/textures/NightBorne.png", 9, 0, 23, 5)),
 				AnimationNode("Run", CreateRef<Animation>("assets/textures/NightBorne.png", 6, 1, 23, 5))
+				// AnimationNode("Idle", CreateRef<Animation>("assets/textures/Idle.png", 9, 0, 9, 1)),
+				// AnimationNode("Run", CreateRef<Animation>("assets/textures/Run.png", 6, 0, 6, 1))
 			})
 		);
 
