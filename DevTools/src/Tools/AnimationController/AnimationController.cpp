@@ -88,7 +88,17 @@ void AnimationController::RemoveAnimation(const std::string& name)
 	it->second.clear();
 	m_Links.erase(it);
 
-	// Need to update Entry
+	for (auto& link : m_Links)
+	{
+		link.second.erase(std::remove_if(link.second.begin(), link.second.end(), [&](Edge edge) {
+			return edge.GetDestination() == name;
+		}));
+	}
+
+	if (!m_Animations.empty())
+	{
+		m_Entry = m_Animations.begin()->first;
+	}
 }
 
 void AnimationController::AddEdge(const std::string& source, const std::string& destination, bool hasExitTime)

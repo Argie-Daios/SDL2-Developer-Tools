@@ -4,17 +4,49 @@
 
 // Operation
 
-std::function<bool(int a, int b)> Operation::intEquals = [](int a, int b) -> bool { return a == b; };
-std::function<bool(int a, int b)> Operation::intNotEquals = [](int a, int b) -> bool { return a != b; };
-std::function<bool(int a, int b)> Operation::intLess = [](int a, int b) -> bool { return a < b; };
-std::function<bool(int a, int b)> Operation::intGreater = [](int a, int b) -> bool { return a > b; };
+bool Operation::intEquals(int a, int b)
+{
+	return a == b;
+}
 
-std::function<bool(float a, float b)> Operation::floatEquals = [](float a, float b) -> bool { return a == b; };
-std::function<bool(float a, float b)> Operation::floatNotEquals = [](float a, float b) -> bool { return a != b; };
-std::function<bool(float a, float b)> Operation::floatLess = [](float a, float b) -> bool { return a < b; };
-std::function<bool(float a, float b)> Operation::floatGreater = [](float a, float b) -> bool { return a > b; };
+bool Operation::intNotEquals(int a, int b)
+{
+	return a != b;
+}
 
-std::function<bool(bool a, bool b)> Operation::boolEquals = [](bool a, bool b) -> bool { return a == b; };
+bool Operation::intLess(int a, int b)
+{
+	return a < b;
+}
+
+bool Operation::intGreater(int a, int b)
+{
+	return a > b;
+}
+
+bool Operation::floatEquals(float a, float b)
+{
+	return a == b;
+}
+
+bool Operation::floatNotEquals(float a, float b)
+{
+	return a != b;
+}
+
+bool Operation::floatLess(float a, float b)
+{
+	return a < b;
+}
+bool Operation::floatGreater(float a, float b)
+{
+	return a > b;
+}
+
+bool Operation::boolEquals(bool a, bool b)
+{
+	return a == b;
+}
 
 static Type OperationFuncToType(Operation::OperationFunc opFunc)
 {

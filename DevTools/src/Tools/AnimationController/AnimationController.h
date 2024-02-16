@@ -10,7 +10,7 @@
 
 struct Animation;
 
-struct AnimationNode;
+using AnimationNode = std::pair < std::string, Ref<Animation>>;
 
 class AnimationController
 {

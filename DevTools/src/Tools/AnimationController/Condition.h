@@ -27,17 +27,17 @@ public:
 		BOOL_IS
 	};
 private:
-	static std::function<bool(int a, int b)> intEquals;
-	static std::function<bool(int a, int b)> intNotEquals;
-	static std::function<bool(int a, int b)> intLess;
-	static std::function<bool(int a, int b)> intGreater;
+	static bool intEquals(int a, int b);
+	static bool intNotEquals(int a, int b);
+	static bool intLess(int a, int b);
+	static bool intGreater(int a, int b);
 
-	static std::function<bool(float a, float b)> floatEquals;
-	static std::function<bool(float a, float b)> floatNotEquals;
-	static std::function<bool(float a, float b)> floatLess;
-	static std::function<bool(float a, float b)> floatGreater;
+	static bool floatEquals(float a, float b);
+	static bool floatNotEquals(float a, float b);
+	static bool floatLess(float a, float b);
+	static bool floatGreater(float a, float b);
 
-	static std::function<bool(bool a, bool b)> boolEquals;
+	static bool boolEquals(bool a, bool b);
 
 	static Type GetRequiredType(std::string str);
 

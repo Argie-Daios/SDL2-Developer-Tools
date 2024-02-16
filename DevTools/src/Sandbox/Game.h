@@ -13,6 +13,7 @@ public:
 	virtual void Update() override;
 private:
 	IEnumerator Attack();
+	IEnumerator Death();
 private:
 	float cameraSpeed = 2.0f;
 

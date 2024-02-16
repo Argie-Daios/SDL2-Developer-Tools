@@ -13,9 +13,32 @@ static SDL_Keycode ScancodeToKeycode(Key key)
 {
 	switch (key)
 	{
+	case Key::A: return SDLK_a;
+	case Key::B: return SDLK_b;
+	case Key::C: return SDLK_c;
 	case Key::D: return SDLK_d;
+	case Key::E: return SDLK_e;
 	case Key::F: return SDLK_f;
 	case Key::G: return SDLK_g;
+	case Key::H: return SDLK_h;
+	case Key::I: return SDLK_i;
+	case Key::J: return SDLK_j;
+	case Key::K: return SDLK_k;
+	case Key::L: return SDLK_l;
+	case Key::M: return SDLK_m;
+	case Key::N: return SDLK_n;
+	case Key::O: return SDLK_o;
+	case Key::P: return SDLK_p;
+	case Key::Q: return SDLK_q;
+	case Key::R: return SDLK_r;
+	case Key::S: return SDLK_s;
+	case Key::T: return SDLK_t;
+	case Key::U: return SDLK_u;
+	case Key::V: return SDLK_v;
+	case Key::W: return SDLK_w;
+	case Key::X: return SDLK_x;
+	case Key::Y: return SDLK_y;
+	case Key::Z: return SDLK_z;
 	case Key::SPACE: return SDLK_SPACE;
 	case Key::UP: return SDLK_UP;
 	case Key::DOWN: return SDLK_DOWN;

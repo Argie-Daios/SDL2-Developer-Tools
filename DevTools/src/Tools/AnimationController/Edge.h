@@ -17,6 +17,7 @@ public:
 
 	void SetExitTime(bool value) { hasExitTime = value; }
 
+	std::string GetDestination() const { return m_DestinationAnimationName; }
 	bool GetExitTime() const { return hasExitTime; }
 private:
 	std::string m_DestinationAnimationName;
