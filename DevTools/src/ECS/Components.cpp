@@ -25,13 +25,16 @@ Transform::Transform(const glm::vec2& position, float zValue, float rotation, co
 void Transform::SetZValue(float zValue) 
 {
 	this->zValue = zValue;
+
+
+
 	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 }
 
 void Transform::Translate(const glm::vec2& translation)
 {
 	Entity en = { m_Entity };
-	en.GetComponent<Transform>().position += translation;
+	position += translation;
 
 	for (auto& child : en.GetComponent<Children>().children)
 	{
@@ -43,8 +46,8 @@ void Transform::Translate(const glm::vec2& translation)
 void Transform::SetPosition(const glm::vec2& position)
 {
 	Entity en = { m_Entity };
-	glm::vec2 prevPos = en.GetComponent<Transform>().position;
-	en.GetComponent<Transform>().position = position;
+	glm::vec2 prevPos = position;
+	this->position = position;
 
 	for (auto& child : en.GetComponent<Children>().children)
 	{
