@@ -22,6 +22,12 @@ Transform::Transform(const glm::vec2& position, float zValue, float rotation, co
 
 }
 
+void Transform::SetZValue(float zValue) 
+{
+	this->zValue = zValue;
+	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
+}
+
 void Transform::Translate(const glm::vec2& translation)
 {
 	Entity en = { m_Entity };

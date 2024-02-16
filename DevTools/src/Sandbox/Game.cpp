@@ -14,6 +14,7 @@ Game::Game()
 		auto& spriteComponent = m_Entity1->AddComponent<SpriteRenderer>("assets/textures/X.png");
 		transformComponent.SetPosition(glm::vec2(500, 200));
 		transformComponent.SetScale(glm::vec2(0.5f, 0.5f));
+		transformComponent.SetZValue(2.0f);
 	}
 
 	{
@@ -35,6 +36,7 @@ Game::Game()
 
 		transformComponent.SetPosition(glm::vec2(0, 0));
 		transformComponent.SetScale(glm::vec2(5, 5));
+		transformComponent.SetZValue(1.0f);
 	}
 }
 
@@ -94,4 +96,9 @@ void Game::Update()
 			m_Entity2->transform().SetFlip(SDL_FLIP_NONE);
 			m_Entity2->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
 		}
+		if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
+		{
+			m_Entity2->GetComponent<Animator>().ChangeBoolParameterValue("Running", false);
+		}
+
 }

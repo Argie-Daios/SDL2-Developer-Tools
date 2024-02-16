@@ -38,6 +38,7 @@ protected:
 	bool m_Running = true;
 
 	friend class Entity;
+	friend struct Transform;
 	friend class Renderer;
 	friend class MoveEntity;
 };

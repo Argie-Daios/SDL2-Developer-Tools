@@ -18,6 +18,8 @@ public:
 		AddComponent<Children>();
 		AddComponent<Transform>();
 		AddComponent<Mesh>();
+
+		REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 	}
 
 	Entity(entt::entity handle)

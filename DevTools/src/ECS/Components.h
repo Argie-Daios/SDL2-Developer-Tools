@@ -32,7 +32,7 @@ public:
 	void Translate(const glm::vec2& translation);
 
 	void SetPosition(const glm::vec2& position);
-	void SetZValue(float zValue) { this->zValue = zValue; } // Need to make for the children
+	void SetZValue(float zValue); // Need to make for the children
 	void SetRotation(float rotation) { this->rotation = rotation; } // Need to make for the children
 	void SetScale(const glm::vec2& scale) { this->scale = scale; } // Need to make for the children
 	void SetFlip(SDL_RendererFlip flip) { this->flip = flip; }

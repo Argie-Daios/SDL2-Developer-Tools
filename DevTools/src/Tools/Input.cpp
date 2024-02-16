@@ -1,5 +1,6 @@
 #include "Input.h"
 
+#include "Core/Macros.h"
 #include "Tools/Time.h"
 
 #include <iostream>
@@ -55,6 +56,9 @@ static SDL_Keycode ScancodeToKeycode(Key key)
 	case Key::NUM8: return SDLK_KP_8;
 	case Key::NUM9: return SDLK_KP_9;
 	}
+
+	GAME_ASSERT(false, "There is no such key");
+	return SDL_KeyCode();
 }
 
 bool Input::IsKeyPressed(Key key)
