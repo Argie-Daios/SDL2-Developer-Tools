@@ -15,6 +15,10 @@ Game::Game()
 		transformComponent.SetPosition(glm::vec2(500, 200));
 		transformComponent.SetScale(glm::vec2(0.5f, 0.5f));
 		transformComponent.SetZValue(2.0f);
+
+		Positioner::PositionItemInWindow(*m_Entity1, PositionType::CENTER);
+
+		std::cout << transformComponent.GetPosition().x << "," << transformComponent.GetPosition().y << std::endl;
 	}
 
 	{
@@ -36,7 +40,9 @@ Game::Game()
 
 		transformComponent.SetPosition(glm::vec2(0, 0));
 		transformComponent.SetScale(glm::vec2(5, 5));
-		transformComponent.SetZValue(1.0f);
+		transformComponent.SetZValue(3.0f);
+
+		Positioner::PositionItemInWindow(*m_Entity2, PositionType::CENTER);
 	}
 }
 

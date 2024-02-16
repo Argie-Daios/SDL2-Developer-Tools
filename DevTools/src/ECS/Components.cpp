@@ -11,22 +11,30 @@ entt::entity Entity::recentEntity = entt::null;
 // Transform
 
 Transform::Transform()
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), position(0.0f, 0.0f), zValue(0.0f), rotation(0.0f), scale(1.0f, 1.0f), size(0.0f, 0.0f),
+	flip(SDL_FLIP_NONE)
 {
 
 }
 
 Transform::Transform(const glm::vec2& position, float zValue, float rotation, const glm::vec2& scale)
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), position(position), zValue(zValue), rotation(rotation), scale(scale), size(0.0f, 0.0f),
+	flip(SDL_FLIP_NONE)
 {
 
 }
 
 void Transform::SetZValue(float zValue) 
 {
+	Entity en = { m_Entity };
 	this->zValue = zValue;
 
-
+	for (auto& child : en.GetComponent<Children>().children)
+	{
+		Entity ent = { child };
+		auto& transformComponent = ent.transform();
+		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
+	}
 
 	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 }
@@ -59,23 +67,10 @@ void Transform::SetPosition(const glm::vec2& position)
 	}
 }
 
-// Mesh
-
-Mesh::Mesh()
-	: Component(Entity::recentEntity)
-{
-
-}
-
-void Mesh::SetTexture(std::string image_path)
-{ 
-	texture = Renderer::CreateTexture(image_path);
-}
-
 // Sprite Renderer
 
 SpriteRenderer::SpriteRenderer()
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), texture(nullptr), tintColor(255.0f, 255.0f, 255.0f), source{ 0,0,0,0 }
 {
 
 }
@@ -83,57 +78,48 @@ SpriteRenderer::SpriteRenderer()
 SpriteRenderer::SpriteRenderer(const std::string& image_path)
 	: Component(Entity::recentEntity)
 {
-	Entity e = { m_Entity };
-
-	auto& mesh = e.GetComponent<Mesh>();
-
-	mesh.SetTexture(image_path);
-
-	UpdateMesh();
+	ChangeTexture(image_path);
 }
 
 void SpriteRenderer::ChangeTexture(std::string image_path)
 {
-	Entity e = { m_Entity };
-
-	auto& mesh = e.GetComponent<Mesh>();
-
-	mesh.SetTexture(image_path);
-
-	UpdateMesh();
+	texture = Renderer::CreateTexture(image_path);
+	UpdateSprite();
 }
 
-void SpriteRenderer::UpdateMesh()
+void SpriteRenderer::ChangeTexture(SDL_Texture* texture)
 {
-	Entity e = { m_Entity };
+	this->texture = texture;
+	UpdateSprite();
+}
 
-	auto& mesh = e.GetComponent<Mesh>();
-
+void SpriteRenderer::UpdateSprite()
+{
 	int texWidth, texHeight;
+	Entity en = { m_Entity };
 
-	SDL_QueryTexture(mesh.GetTexture(), nullptr, nullptr, &texWidth, &texHeight);
+	SDL_QueryTexture(texture, nullptr, nullptr, &texWidth, &texHeight);
 
-	mesh.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
-	mesh.SetSize(glm::vec2(texWidth, texHeight));
+	source = SDL_Rect{ 0, 0, texWidth, texHeight };
+	en.transform().SetSize(glm::vec2(texWidth, texHeight));
 }
 
 // Animation
 
 Animation::Animation()
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0)
 {
 
 }
 
 Animation::Animation(const std::string& image_path, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
-	: Component(Entity::recentEntity), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames), totalRows(totalRows), delay(delay), loop(loop)
+	: Component(Entity::recentEntity), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
+	totalRows(totalRows), delay(delay), loop(loop)
 {
 	Entity e = { m_Entity };
+	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
 
-	auto& mesh = e.GetComponent<Mesh>();
-
-	mesh.SetTexture(image_path);
-
+	spriteRenderer.ChangeTexture(image_path);
 	Animate();
 }
 
@@ -152,19 +138,19 @@ Animation::Animation(const Animation& animation)
 void Animation::Animate()
 {
 	Entity e = { m_Entity };
-
-	auto& mesh = e.GetComponent<Mesh>();
+	auto& transformComponent = e.transform();
+	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
 
 	int texWidth, texHeight, frameIndex;
 
-	SDL_QueryTexture(mesh.GetTexture(), nullptr, nullptr, &texWidth, &texHeight);
+	SDL_QueryTexture(spriteRenderer.GetTexture(), nullptr, nullptr, &texWidth, &texHeight);
 
 	CurrentFrame(frameIndex, texWidth);
 
 	if(loop || (timeElapsed <= delay * (currentFrames - 1))) timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
 
-	mesh.SetSize(glm::vec2(texWidth, texHeight / totalRows));
-	mesh.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth, texHeight / totalRows});
+	transformComponent.SetSize(glm::vec2(texWidth, texHeight / totalRows));
+	spriteRenderer.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth, texHeight / totalRows});
 }
 
 void Animation::CurrentFrame(int& index, int& texWidth)
@@ -349,9 +335,10 @@ namespace Utils {
 }
 
 Text::Text()
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity), label("Text"), font_path("assets/fonts/arial.ttf"), font_size(10),
+	color(SDL_Color{ 255,255,255 })
 {
-
+	UpdateMesh();
 }
 
 Text::Text(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color)
@@ -373,43 +360,39 @@ Text::Text(const Text& text)
 void Text::ChangeLabel(const std::string& label)
 {
 	this->label = label;
-
 	UpdateMesh();
 }
 
 void Text::ChangeFontPath(const std::string& font_path)
 {
 	this->font_path = font_path;
-
 	UpdateMesh();
 }
 
 void Text::ChangeFontSize(int font_size)
 {
 	this->font_size = font_size;
-
 	UpdateMesh();
 }
 
 void Text::ChangeColor(const SDL_Color& color)
 {
 	this->color = color;
-
 	UpdateMesh();
 }
 
 void Text::UpdateMesh()
 {
 	Entity e = { m_Entity };
-
-	auto& mesh = e.GetComponent<Mesh>();
+	auto& transformComponent = e.transform();
+	auto& spriteComponent = e.AddIfNotExistsOrGet<SpriteRenderer>();
 
 	int texWidth, texHeight;
 	SDL_Texture* texture = Utils::LoadFont(label, font_path, font_size, color);
 
 	SDL_QueryTexture(texture, nullptr, nullptr, &texWidth, &texHeight);
 
-	mesh.SetTexture(texture);
-	mesh.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
-	mesh.SetSize(glm::vec2(texWidth, texHeight));
+	spriteComponent.ChangeTexture(texture);
+	spriteComponent.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
+	transformComponent.SetSize(glm::vec2(texWidth, texHeight));
 }

@@ -36,14 +36,17 @@ public:
 	void SetRotation(float rotation) { this->rotation = rotation; } // Need to make for the children
 	void SetScale(const glm::vec2& scale) { this->scale = scale; } // Need to make for the children
 	void SetFlip(SDL_RendererFlip flip) { this->flip = flip; }
+	void SetSize(glm::vec2 size) { this->size = size; } // May need to make for the children
 
 	glm::vec2 GetPosition() const { return position; }
 	float GetZValue() const { return zValue; }
 	float GetRotation() const { return rotation; }
 	glm::vec2 GetScale() const { return scale; }
 	SDL_RendererFlip GetFlip() const { return flip; }
+	glm::vec2 GetSize() const { return size; }
 private:
 	glm::vec2 position = glm::vec2(0.0f, 0.0f);
+	glm::vec2 size;
 	float zValue = 0.0f;
 	float rotation = 0.0f;
 	glm::vec2 scale = glm::vec2(1.0f, 1.0f);
@@ -52,41 +55,29 @@ private:
 	friend class Entity;
 };
 
-struct Mesh : public Component
-{
-public:
-	Mesh();
-	Mesh(const Mesh&) = default;
-	~Mesh() { SDL_DestroyTexture(texture); }
-
-	void SetTexture(std::string image_path);
-	void SetTexture(SDL_Texture* texture) { this->texture = texture; }
-	void SetTintColor(glm::vec3 color) { tintColor = color; }
-	void SetSource(SDL_Rect src) { source = src; }
-	void SetSize(glm::vec2 size) { this->size = size; }
-
-	SDL_Texture* GetTexture() const { return texture; }
-	glm::vec3 GetColor() const { return tintColor; }
-	SDL_Color GetSDLColor() const { return SDL_Color{ (unsigned char)(int)tintColor.r, (unsigned char)(int)tintColor.g, (unsigned char)(int)tintColor.b }; }
-	SDL_Rect GetSource() const { return source; }
-	glm::vec2 GetSize() const { return size; }
-private:
-	SDL_Texture* texture = nullptr;
-	glm::vec3 tintColor = glm::ivec3(255.0f, 255.0f, 255.0f);
-	SDL_Rect source;
-	glm::vec2 size;
-};
-
 struct SpriteRenderer : public Component
 {
 public:
 	SpriteRenderer();
 	SpriteRenderer(const std::string& image_path);
 	SpriteRenderer(const SpriteRenderer&) = default;
+	~SpriteRenderer() { SDL_DestroyTexture(texture); }
 
 	void ChangeTexture(std::string image_path);
+	void ChangeTexture(SDL_Texture* texture);
+	void SetTintColor(glm::vec3 color) { tintColor = color; }
+	void SetSource(SDL_Rect src) { source = src; }
+
+	SDL_Texture* GetTexture() const { return texture; }
+	glm::vec3 GetColor() const { return tintColor; }
+	SDL_Color GetSDLColor() const { return SDL_Color{ (unsigned char)(int)tintColor.r, (unsigned char)(int)tintColor.g, (unsigned char)(int)tintColor.b }; }
+	SDL_Rect GetSource() const { return source; }
 private:
-	void UpdateMesh();
+	void UpdateSprite();
+private:
+	SDL_Texture* texture = nullptr;
+	glm::vec3 tintColor = glm::ivec3(255.0f, 255.0f, 255.0f);
+	SDL_Rect source;
 };
 
 struct Animation : public Component

@@ -26,7 +26,7 @@ void AnimationController::Update()
 
 	auto elem = m_Animations[m_Entry];
 
-	std::cout << "Current Animation : " << m_Entry << std::endl;
+	//std::cout << "Current Animation : " << m_Entry << std::endl;
 
 	auto links = m_Links[m_Entry];
 

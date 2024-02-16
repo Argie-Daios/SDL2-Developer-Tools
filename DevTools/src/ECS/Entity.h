@@ -17,7 +17,6 @@ public:
 
 		AddComponent<Children>();
 		AddComponent<Transform>();
-		AddComponent<Mesh>();
 
 		REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 	}
@@ -47,6 +46,12 @@ public:
 		T& component = REGISTRY.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
 
 		return component;
+	}
+
+	template<typename T>
+	T& AddIfNotExistsOrGet()
+	{
+		return (HasComponent<T>())? GetComponent<T>() : AddComponent<T>();
 	}
 
 	template<typename T>

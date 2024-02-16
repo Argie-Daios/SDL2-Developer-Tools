@@ -5,15 +5,10 @@
 void Positioner::PositionItemInWindow(Entity entity, PositionType positioning)
 {
 	auto& transformComponent = entity.GetComponent<Transform>();
-	auto& meshComponent = entity.GetComponent<Mesh>();
+	auto& spriteComponent = entity.GetComponent<SpriteRenderer>();
 
-	int width = 1, height = 1;
-
-	if (meshComponent.GetTexture())
-	{
-		width = meshComponent.GetSize().x;
-		height = meshComponent.GetSize().y;
-	}
+	int width = transformComponent.GetSize().x;
+	int height = transformComponent.GetSize().y;
 
 	glm::vec2 itemXY = transformComponent.GetPosition();
 	glm::vec2 itemWH = glm::vec2(width, height);
@@ -83,15 +78,10 @@ void Positioner::PositionItemInWindow(Entity entity, PositionType positioning)
 void Positioner::PositionCameraToEntity(Entity entity, PositionType positioning)
 {
 	auto& transformComponent = entity.GetComponent<Transform>();
-	auto& meshComponent = entity.GetComponent<Mesh>();
+	auto& spriteComponent = entity.GetComponent<SpriteRenderer>();
 
-	int width = 1, height = 1;
-
-	if (meshComponent.GetTexture())
-	{
-		width = meshComponent.GetSize().x;
-		height = meshComponent.GetSize().y;
-	}
+	int width = transformComponent.GetSize().x;
+	int height = transformComponent.GetSize().y;
 
 	glm::vec2 itemXY = transformComponent.GetPosition();
 	glm::vec2 itemWH = glm::vec2(width, height);

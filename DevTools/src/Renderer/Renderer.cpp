@@ -26,21 +26,19 @@ void Renderer::Begin()
 
 void Renderer::Draw(entt::registry& reg)
 {
-	auto view = reg.view<Transform, Mesh>();
+	auto view = reg.view<Transform, SpriteRenderer>();
 
 	for (auto entity : view)
 	{
 		Entity e = { entity };
 
-		auto& transformComponent = e.GetComponent<Transform>();
-		auto& meshComponent = e.GetComponent<Mesh>();
-
-		if (meshComponent.GetTexture() == nullptr) continue;
+		auto& transformComponent = e.transform();
+		auto& spriteComponent = e.GetComponent<SpriteRenderer>();
 
 		glm::vec2 position = transformComponent.GetPosition();
-		glm::vec2 size = meshComponent.GetSize();
+		glm::vec2 size = transformComponent.GetSize();
 
-		SDL_Rect source = meshComponent.GetSource();
+		SDL_Rect source = spriteComponent.GetSource();
 
 		auto cameraTransformComponent = Application::Get()->GetCamera()->GetComponent<Transform>();
 
@@ -49,7 +47,7 @@ void Renderer::Draw(entt::registry& reg)
 		destination.w *= transformComponent.GetScale().x;
 		destination.h *= transformComponent.GetScale().y;
 
-		SDL_RenderCopyEx(s_Renderer, meshComponent.GetTexture(), &source, &destination, 0, nullptr, transformComponent.GetFlip());
+		SDL_RenderCopyEx(s_Renderer, spriteComponent.GetTexture(), &source, &destination, 0, nullptr, transformComponent.GetFlip());
 	}
 }
 
