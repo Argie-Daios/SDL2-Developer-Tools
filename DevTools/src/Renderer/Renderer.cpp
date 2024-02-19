@@ -40,7 +40,7 @@ void Renderer::Draw(entt::registry& reg)
 
 		SDL_Rect source = spriteComponent.GetSource();
 
-		auto cameraTransformComponent = Application::Get()->GetCamera()->GetComponent<Transform>();
+		auto cameraTransformComponent = Application::GetCurrentScene()->GetCamera()->GetComponent<Transform>();
 
 		SDL_Rect destination = { (int)position.x - cameraTransformComponent.GetPosition().x,
 			(int)position.y - cameraTransformComponent.GetPosition().y, (int)size.x, (int)size.y};

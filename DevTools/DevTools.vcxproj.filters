@@ -1358,6 +1358,7 @@
     <ClInclude Include="src\Tools\AnimationController\Condition.h" />
     <ClInclude Include="src\Tools\AnimationController\Parameter.h" />
     <ClInclude Include="src\Tools\Enums.h" />
+    <ClInclude Include="src\Core\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -1397,5 +1398,6 @@
     <ClCompile Include="src\Tools\AnimationController\Parameter.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
     <ClCompile Include="src\Tools\AnimationController\AnimationController.cpp" />
+    <ClCompile Include="src\Core\Scene.cpp" />
   </ItemGroup>
 </Project>

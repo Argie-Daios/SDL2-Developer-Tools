@@ -7,7 +7,8 @@
 
 Application* Application::s_Instance = nullptr;
 Ref<Window> Application::window = nullptr;
-Ref<Entity> Application::s_Camera = nullptr;
+std::unordered_map<std::string, Ref<Scene>> Application::s_Scenes;
+std::string Application::currentScene = "-";
 
 Application::Application()
 {
@@ -17,7 +18,13 @@ Application::Application()
 
 	Renderer::Init(window->Get());
 
-	s_Camera = CreateRef<Entity>("Camera");
+	s_Scenes.emplace("Start Scene", CreateRef<Scene>());
+	currentScene = "Start Scene";
+	s_Scenes[currentScene]->m_Camera = CreateRef<Entity>("Camera");
+
+	s_Scenes.emplace("Rofl Scene", CreateRef<Scene>());
+	currentScene = "Rofl Scene";
+	s_Scenes.find("Rofl Scene")->second->m_Camera = CreateRef<Entity>("Camera");
 }
 
 Application::~Application()
@@ -39,9 +46,17 @@ void Application::Event(SDL_Event* event)
 	}
 }
 
+void Application::ChangeScene(const std::string& scene)
+{
+	GAME_ASSERT(s_Scenes.find(scene) != s_Scenes.end(), "This scene does not exist");
+	GAME_ASSERT(currentScene != scene, "This scene is already active");
+
+	currentScene = scene;
+}
+
 void Application::UpdateAnimations()
 {
-	auto view = m_Registry.view<Animation>();
+	auto view = s_Scenes[currentScene]->m_Registry.view<Animation>();
 
 	for (auto entity : view)
 	{
@@ -55,7 +70,7 @@ void Application::UpdateAnimations()
 
 void Application::UpdateAnimators()
 {
-	auto view = m_Registry.view<Animator>();
+	auto view = s_Scenes[currentScene]->m_Registry.view<Animator>();
 
 	for (auto entity : view)
 	{
@@ -69,7 +84,7 @@ void Application::UpdateAnimators()
 
 void Application::UpdateColliders()
 {
-	auto view = m_Registry.view<Collider>();
+	auto view = s_Scenes[currentScene]->m_Registry.view<Collider>();
 
 	for (auto entity : view)
 	{
@@ -112,7 +127,7 @@ void Application::UpdateColliders()
 
 void Application::Update()
 {
-	m_Registry.view<Behaviour>().each([=](auto entity, auto& behaviour)
+	s_Scenes[currentScene]->m_Registry.view<Behaviour>().each([=](auto entity, auto& behaviour)
 	{
 		if (!behaviour.Instance)
 		{
@@ -131,7 +146,7 @@ void Application::Update()
 
 void Application::Draw()
 {
-	Renderer::Draw(m_Registry);
+	Renderer::Draw(s_Scenes[currentScene]->m_Registry);
 }
 
 void Application::Run()

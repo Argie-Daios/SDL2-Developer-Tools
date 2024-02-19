@@ -86,7 +86,7 @@ void Positioner::PositionCameraToEntity(Entity entity, PositionType positioning)
 	glm::vec2 itemXY = transformComponent.GetPosition();
 	glm::vec2 itemWH = glm::vec2(width, height);
 
-	auto& cameraTransformComponent = Application::Get()->GetCamera()->transform();
+	auto& cameraTransformComponent = Application::GetCurrentScene()->GetCamera()->transform();
 
 	glm::vec2 cameraXY = cameraTransformComponent.GetPosition();
 	glm::vec2 cameraWH = glm::ivec2(Application::Get()->GetWindow()->GetWidth(),

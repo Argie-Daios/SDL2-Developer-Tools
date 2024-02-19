@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Macros.h"
+#include "Scene.h"
 #include "Tools/Time.h"
 #include "Renderer/Renderer.h"
-#include "entt.hpp"
 
 #include <vector>
 
@@ -22,7 +22,8 @@ public:
 	virtual void Run();
 
 	Ref<Window> GetWindow() const { return window; }
-	Ref<Entity> GetCamera() { return s_Camera; }
+	static Ref<Scene> GetCurrentScene() { return s_Scenes[currentScene]; }
+	static void ChangeScene(const std::string& scene);
 
 	inline static Application* Get() { return s_Instance; }
 private:
@@ -33,9 +34,8 @@ protected:
 	static Application* s_Instance;
 
 	static Ref<Window> window;
-	static Ref<Entity> s_Camera;
-
-	entt::registry m_Registry;
+	static std::unordered_map<std::string, Ref<Scene>> s_Scenes;
+	static std::string currentScene;
 
 	bool m_Running = true;
 

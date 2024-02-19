@@ -55,24 +55,8 @@ void Game::Update()
 {
 	Application::Update();
 
-	if (Input::IsKeyPressed(Key::A))
+	if (Input::IsKeyDown(Key::P))
 	{
-		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
-		m_Entity1->transform().SetFlip(SDL_FLIP_HORIZONTAL);
-		m_Entity1->transform().Translate(glm::vec2(- 400 * Time::DeltaTime(), 0));
-	}
-	if (Input::IsKeyPressed(Key::D))
-	{
-		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
-		m_Entity1->transform().SetFlip(SDL_FLIP_NONE);
-		m_Entity1->transform().Translate(glm::vec2(400 * Time::DeltaTime(), 0));
-	}
-	if (Input::IsKeyDown(Key::SPACE))
-	{
-		CoroutineManager::StartCoroutine(Attack());
-	}
-	if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
-	{
-		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", false);
+		ChangeScene((currentScene == "Start Scene" ? "Rofl Scene" : "Start Scene"));
 	}
 }

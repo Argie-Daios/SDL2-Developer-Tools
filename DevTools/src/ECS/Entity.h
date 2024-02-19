@@ -4,7 +4,7 @@
 
 #include "Components.h"
 
-#define REGISTRY Application::Get()->m_Registry
+#define REGISTRY Application::GetCurrentScene()->m_Registry
 
 class Entity
 {
