@@ -11,12 +11,15 @@ class Entity;
 class Entity
 {
 public:
-	Entity()
+	Entity(const std::string& name)
 	{
 		m_EntityHandle = REGISTRY.create();
 
-		AddComponent<Children>();
-		AddComponent<Transform>();
+		auto& childComponent = AddComponent<Children>();
+		auto& infoComponent = AddComponent<Information>();
+		auto& transformComponent = AddComponent<Transform>();
+
+		SetName(name);
 
 		REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 	}
@@ -76,6 +79,11 @@ public:
 		REGISTRY.remove<T>(m_EntityHandle);
 	}
 
+	std::string name()
+	{
+		return GetComponent<Information>().name;
+	}
+
 	Transform& transform()
 	{
 		return GetComponent<Transform>();
@@ -88,9 +96,49 @@ public:
 		GetComponent<Children>().children.push_back(handle);
 	}
 
+	std::list<entt::entity> GetChildren()
+	{
+		return GetComponent<Children>().children;
+	}
+
+	void SetName(const std::string& name)
+	{
+		GAME_ASSERT(!nameExists(name), "Name already exists!");
+
+		auto& infoComponent = GetComponent<Information>().name = name;
+	}
+
 	entt::entity handle() { return m_EntityHandle; }
 
 	static entt::entity recentEntity;
 private:
+	struct Children
+	{
+		std::list<entt::entity> children;
+	};
+
+	struct Information
+	{
+		std::string name;
+		std::vector<std::string> tags;
+	};
+
+	bool nameExists(const std::string& name)
+	{
+		auto view = REGISTRY.view<Information>();
+		for (auto entity : view)
+		{
+			if (entity == m_EntityHandle) continue;
+
+			Entity en = { entity };
+			if (en.name() == name)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	entt::entity m_EntityHandle = entt::null;
 };

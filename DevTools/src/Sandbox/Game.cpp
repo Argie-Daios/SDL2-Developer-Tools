@@ -9,7 +9,7 @@ Game::Game()
 	: Application()
 {
 	{
-		m_Entity1 = CreateRef<Entity>();
+		m_Entity1 = CreateRef<Entity>("Wizard");
 		auto& transformComponent = m_Entity1->transform();
 		auto& animationComponent = m_Entity1->AddComponent<Animator>(
 			std::initializer_list({
@@ -42,6 +42,8 @@ Game::Game()
 		transformComponent.SetScale(glm::vec2(4, 4));
 		transformComponent.SetZValue(3.0f);
 	}
+
+	Entity en("Wizard");
 }
 
 IEnumerator Game::Attack()

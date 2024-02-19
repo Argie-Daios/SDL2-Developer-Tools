@@ -17,7 +17,7 @@ Application::Application()
 
 	Renderer::Init(window->Get());
 
-	s_Camera = CreateRef<Entity>();
+	s_Camera = CreateRef<Entity>("Camera");
 }
 
 Application::~Application()

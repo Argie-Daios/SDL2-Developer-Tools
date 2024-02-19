@@ -9,11 +9,6 @@
 
 #include "Tools/AnimationController/AnimationController.h"
 
-struct Children
-{
-	std::list<entt::entity> children;
-};
-
 struct Component
 {
 public:

@@ -61,7 +61,7 @@ void Transform::SetPosition(const glm::vec2& position)
 	glm::vec2 prevPos = position;
 	this->position = position;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 
@@ -76,7 +76,7 @@ void Transform::Translate(const glm::vec2& translation)
 	Entity en = { m_Entity };
 	position += translation;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 		ent.GetComponent<Transform>().Translate(translation);
@@ -88,7 +88,7 @@ void Transform::SetZValue(float zValue)
 	Entity en = { m_Entity };
 	this->zValue = zValue;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 		auto& transformComponent = ent.transform();
@@ -103,7 +103,7 @@ void Transform::SetRotation(float rotation)
 	Entity en = { m_Entity };
 	this->rotation = rotation;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 		auto& transformComponent = ent.transform();
@@ -116,7 +116,7 @@ void Transform::SetScale(const glm::vec2& scale)
 	Entity en = { m_Entity };
 	this->scale = scale;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 		auto& transformComponent = ent.transform();
@@ -129,7 +129,7 @@ void Transform::SetFlip(SDL_RendererFlip flip)
 	Entity en = { m_Entity };
 	this->flip = flip;
 
-	for (auto& child : en.GetComponent<Children>().children)
+	for (auto& child : en.GetChildren())
 	{
 		Entity ent = { child };
 		auto& transformComponent = ent.transform();
