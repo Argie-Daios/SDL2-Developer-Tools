@@ -11,100 +11,68 @@ Game::Game()
 	{
 		m_Entity1 = CreateRef<Entity>();
 		auto& transformComponent = m_Entity1->transform();
-		auto& spriteComponent = m_Entity1->AddComponent<SpriteRenderer>("assets/textures/X.png");
-		transformComponent.SetPosition(glm::vec2(500, 200));
-		transformComponent.SetScale(glm::vec2(0.5f, 0.5f));
-		transformComponent.SetZValue(2.0f);
-
-		Positioner::PositionItemInWindow(*m_Entity1, PositionType::CENTER);
-	}
-
-	{
-		m_Entity2 = CreateRef<Entity>();
-		auto& transformComponent = m_Entity2->transform();
-		auto& animationComponent = m_Entity2->AddComponent<Animator>(
+		auto& animationComponent = m_Entity1->AddComponent<Animator>(
 			std::initializer_list({
-				AnimationNode("Idle", CreateRef<Animation>("assets/textures/NightBorne.png", 9, 0, 23, 5)),
-				AnimationNode("Run", CreateRef<Animation>("assets/textures/NightBorne.png", 6, 1, 23, 5))
-				// AnimationNode("Idle", CreateRef<Animation>("assets/textures/Idle.png", 9, 0, 9, 1)),
-				// AnimationNode("Run", CreateRef<Animation>("assets/textures/Run.png", 6, 0, 6, 1))
+				AnimationNode("Idle", CreateRef<Animation>("assets/textures/Wizard/Idle.png", 6, 0, 6, 1)),
+				AnimationNode("Run", CreateRef<Animation>("assets/textures/Wizard/Run.png", 8, 0, 8, 1)),
+				AnimationNode("Attack", CreateRef<Animation>("assets/textures/Wizard/Attack1.png", 8, 0, 8, 1))
 			})
 		);
 
 		animationComponent.AddTwoSideEdge("Idle", "Run", false, false);
+		animationComponent.AddTwoSideEdge("Attack", "Run", false, false);
+		animationComponent.AddTwoSideEdge("Attack", "Idle", false, false);
 
 		animationComponent.AddBoolParameter("Running", false);
+		animationComponent.AddBoolParameter("Attack", false);
 
 		animationComponent.AddConditionOnEdgeBool("Idle", "Run", "Running", Operation::OperationFunc::BOOL_IS, true);
 		animationComponent.AddConditionOnEdgeBool("Run", "Idle", "Running", Operation::OperationFunc::BOOL_IS, false);
 
-		transformComponent.SetPosition(glm::vec2(0, 0));
-		transformComponent.SetScale(glm::vec2(5, 5));
-		transformComponent.SetZValue(3.0f);
+		animationComponent.AddConditionOnEdgeBool("Idle", "Attack", "Attack", Operation::OperationFunc::BOOL_IS, true);
+		animationComponent.AddConditionOnEdgeBool("Run", "Attack", "Attack", Operation::OperationFunc::BOOL_IS, true);
 
-		Positioner::PositionItemInWindow(*m_Entity2, PositionType::CENTER);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Idle", "Attack", Operation::OperationFunc::BOOL_IS, false);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Run", "Attack", Operation::OperationFunc::BOOL_IS, false);
+
+		animationComponent.AddConditionOnEdgeBool("Attack", "Idle", "Running", Operation::OperationFunc::BOOL_IS, false);
+		animationComponent.AddConditionOnEdgeBool("Attack", "Run", "Running", Operation::OperationFunc::BOOL_IS, true);
+
+		transformComponent.SetPosition(glm::vec2(0, 0));
+		transformComponent.SetScale(glm::vec2(4, 4));
+		transformComponent.SetZValue(3.0f);
 	}
+}
+
+IEnumerator Game::Attack()
+{
+	m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Attack", true);
+	yield_return NewReturnType<WaitForSeconds>(0.1 * 8);
+	m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Attack", false);
 }
 
 void Game::Update()
 {
 	Application::Update();
 
-	// Camera Position to Entity
-#if 0
-		if (Input::IsKeyDown(Key::NUM7))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT_UP);
-		}
-		if (Input::IsKeyDown(Key::NUM8))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::UP);
-		}
-		if (Input::IsKeyDown(Key::NUM9))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT_UP);
-		}
-		if (Input::IsKeyDown(Key::NUM4))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT);
-		}
-		if (Input::IsKeyDown(Key::NUM5))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::CENTER);
-		}
-		if (Input::IsKeyDown(Key::NUM6))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT);
-		}
-		if (Input::IsKeyDown(Key::NUM1))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::LEFT_DOWN);
-		}
-		if (Input::IsKeyDown(Key::NUM2))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::DOWN);
-		}
-		if (Input::IsKeyDown(Key::NUM3))
-		{
-			Positioner::PositionCameraToEntity(*m_Entity1, PositionType::RIGHT_DOWN);
-		}
-#endif
-
-		if (Input::IsKeyPressed(Key::A))
-		{
-			m_Entity2->transform().Translate(glm::vec2(-300 * Time::DeltaTime(), 0));
-			m_Entity2->transform().SetFlip(SDL_FLIP_HORIZONTAL);
-			m_Entity2->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
-		}
-		if (Input::IsKeyPressed(Key::D))
-		{
-			m_Entity2->transform().Translate(glm::vec2(300 * Time::DeltaTime(), 0));
-			m_Entity2->transform().SetFlip(SDL_FLIP_NONE);
-			m_Entity2->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
-		}
-		if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
-		{
-			m_Entity2->GetComponent<Animator>().ChangeBoolParameterValue("Running", false);
-		}
-
+	if (Input::IsKeyPressed(Key::A))
+	{
+		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
+		m_Entity1->transform().SetFlip(SDL_FLIP_HORIZONTAL);
+		m_Entity1->transform().Translate(glm::vec2(- 400 * Time::DeltaTime(), 0));
+	}
+	if (Input::IsKeyPressed(Key::D))
+	{
+		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", true);
+		m_Entity1->transform().SetFlip(SDL_FLIP_NONE);
+		m_Entity1->transform().Translate(glm::vec2(400 * Time::DeltaTime(), 0));
+	}
+	if (Input::IsKeyDown(Key::SPACE))
+	{
+		CoroutineManager::StartCoroutine(Attack());
+	}
+	if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
+	{
+		m_Entity1->GetComponent<Animator>().ChangeBoolParameterValue("Running", false);
+	}
 }

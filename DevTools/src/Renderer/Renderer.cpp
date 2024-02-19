@@ -47,8 +47,23 @@ void Renderer::Draw(entt::registry& reg)
 		destination.w *= transformComponent.GetScale().x;
 		destination.h *= transformComponent.GetScale().y;
 
-		SDL_RenderCopyEx(s_Renderer, spriteComponent.GetTexture(), &source, &destination, 0, nullptr, transformComponent.GetFlip());
+		SDL_Texture* texture = spriteComponent.GetTexture();
+
+		SDL_Color color = spriteComponent.GetSDLColor();
+		if(color.r != 255 || color.g != 255 || color.b != 255)
+			SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
+
+		SDL_RenderCopyEx(s_Renderer, texture, &source, &destination, 0, nullptr, transformComponent.GetFlip());
 	}
+}
+
+void Renderer::DrawQuad(SDL_Rect rect, SDL_Color color)
+{
+	SDL_SetRenderDrawColor(s_Renderer, color.r, color.g, color.b, 255);
+
+	SDL_RenderFillRect(s_Renderer, &rect);
+
+	SDL_SetRenderDrawColor(s_Renderer, 0, 0, 0, 255);
 }
 
 void Renderer::End()

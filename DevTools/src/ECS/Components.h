@@ -90,7 +90,7 @@ public:
 
 	void Animate();
 
-	bool isComplete() { return CurrentFrameIndex() + 1 == currentFrames; }
+	bool isComplete();
 
 	int GetCurrentFrames() const { return currentFrames; }
 	int GetCurrentRow() const { return currentRow; }
@@ -106,7 +106,7 @@ public:
 	void ChangeDelay(float delay) { this->delay = delay; }
 	void ChangeLoop(bool loop) { this->loop = loop; }
 private:
-	void CurrentFrame(int& index, int& texWidth);
+	void CurrentFrame(int& index);
 	int CurrentFrameIndex();
 private:
 	std::string texture_path;
@@ -118,6 +118,9 @@ private:
 	bool loop = true;
 
 	float timeElapsed = 0.0f;
+
+	int texWidth;
+	int texHeight;
 
 	friend struct Animator;
 	friend class AnimationController;
@@ -201,4 +204,30 @@ struct Behaviour
 		InstantiateScript = []() { return static_cast<ControlledEntity*>(new T()); };
 		DestroyInstanceScript = [](Behaviour* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
 	}
+};
+
+struct Collider : public Component
+{
+public:
+	Collider();
+	Collider(const glm::vec2& offset, bool trigger = false);
+	Collider(const Collider&) = default;
+
+	void SetOffset(const glm::vec2& offset) { this->offset = offset; }
+	void SetSize(const glm::vec2& size);
+	void SetTrigger(bool trigger) { this->trigger = trigger; }
+
+	glm::vec2 GetOffset() const { return offset; }
+	glm::vec2 GetSize() const { return glm::vec2(rect.w, rect.h); }
+	bool SetTrigger() const { return trigger; }
+	bool Collides() const { return collides; }
+
+	std::function<void(Entity)> onCollision = nullptr;
+private:
+	glm::vec2 offset;
+	SDL_Rect rect;
+	bool trigger;
+	bool collides;
+
+	friend class Application;
 };

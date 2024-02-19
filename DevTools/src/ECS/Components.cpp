@@ -153,8 +153,11 @@ SpriteRenderer::SpriteRenderer(const std::string& image_path)
 
 void SpriteRenderer::ChangeTexture(std::string image_path)
 {
+	SDL_Texture* temp = texture;
 	texture = Renderer::CreateTexture(image_path);
+	SDL_DestroyTexture(temp);
 	UpdateSprite();
+	texture_path = image_path;
 }
 
 void SpriteRenderer::ChangeTexture(SDL_Texture* texture)
@@ -189,9 +192,13 @@ Animation::Animation(const std::string& image_path, int currentFrames, int curre
 	totalRows(totalRows), delay(delay), loop(loop)
 {
 	Entity e = { m_Entity };
+	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
 
 	spriteRenderer.ChangeTexture(image_path);
+	texWidth = spriteRenderer.GetSource().w;
+	texHeight = spriteRenderer.GetSource().h;
+	transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
 	Animate();
 }
 
@@ -209,24 +216,38 @@ Animation::Animation(const Animation& animation)
 
 void Animation::Animate()
 {
+	if (!loop && isComplete()) return;
+
 	Entity e = { m_Entity };
 	auto& transformComponent = e.transform();
-	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
+	auto& spriteRenderer = e.GetComponent<SpriteRenderer>();
 
-	int texWidth, texHeight, frameIndex;
+	int frameIndex;
 
-	if (texture_path != spriteRenderer.GetTexturePath()) spriteRenderer.ChangeTexture(texture_path);
-	SDL_QueryTexture(spriteRenderer.GetTexture(), nullptr, nullptr, &texWidth, &texHeight);
+	if (texture_path != spriteRenderer.GetTexturePath())
+	{
+		spriteRenderer.ChangeTexture(texture_path);
+		texWidth = spriteRenderer.GetSource().w;
+		texHeight = spriteRenderer.GetSource().h;
+		transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
+	}
 
-	CurrentFrame(frameIndex, texWidth);
+	CurrentFrame(frameIndex);
 
-	if(loop || (timeElapsed <= delay * (currentFrames - 1))) timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
+	timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
 
-	transformComponent.SetSize(glm::vec2(texWidth, texHeight / totalRows));
-	spriteRenderer.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth, texHeight / totalRows});
+	spriteRenderer.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth / totalFrames, texHeight / totalRows});
 }
 
-void Animation::CurrentFrame(int& index, int& texWidth)
+bool Animation::isComplete()
+{
+	if(currentFrames <= totalFrames)
+		return CurrentFrameIndex() + 1 == currentFrames;
+
+	return CurrentFrameIndex() + (totalFrames * currentRow) == currentFrames - 1;
+}
+
+void Animation::CurrentFrame(int& index)
 {
 	int frameSize;
 
@@ -239,13 +260,23 @@ void Animation::CurrentFrame(int& index, int& texWidth)
 	frameSize = texWidth / totalFrames;
 
 	index = CurrentFrameIndex() * frameSize;
-
-	texWidth = frameSize;
 }
 
 int Animation::CurrentFrameIndex()
 {	
-	int index = (((int)timeElapsed / (int)delay) % currentFrames);
+	int frames = ((int)timeElapsed / (int)delay);
+	int index = (frames % currentFrames);
+
+	if (index >= totalFrames)
+	{
+		currentRow++;
+		index = 0;
+		timeElapsed = 0;
+		if (currentRow == totalRows)
+		{
+			currentRow = 0;
+		}
+	}
 
 	return index;
 }
@@ -437,4 +468,39 @@ void Text::UpdateMesh()
 	spriteComponent.ChangeTexture(texture);
 	spriteComponent.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
 	transformComponent.SetSize(glm::vec2(texWidth, texHeight));
+}
+
+// Collider
+
+Collider::Collider()
+	: Component(Entity::recentEntity), offset(glm::vec2(0.0f, 0.0f)), trigger(false)
+{
+	Entity en = { m_Entity };
+	auto& transformComponent = en.transform();
+
+	rect.x = transformComponent.GetPosition().x;
+	rect.y = transformComponent.GetPosition().y;
+	rect.w = transformComponent.GetSize().x * transformComponent.GetScale().x;
+	rect.h = transformComponent.GetSize().y * transformComponent.GetScale().y;
+}
+
+Collider::Collider(const glm::vec2& offset, bool trigger)
+	: Component(Entity::recentEntity), offset(offset), trigger(trigger)
+{
+	Entity en = { m_Entity };
+	auto& transformComponent = en.transform();
+
+	rect.x = transformComponent.GetPosition().x;
+	rect.y = transformComponent.GetPosition().y;
+	rect.w = transformComponent.GetSize().x * transformComponent.GetScale().x;
+	rect.h = transformComponent.GetSize().y * transformComponent.GetScale().y;
+}
+
+void Collider::SetSize(const glm::vec2& size)
+{ 
+	Entity en = { m_Entity };
+	auto& transformComponent = en.transform();
+
+	rect.w = size.x * transformComponent.GetScale().x;
+	rect.h = size.y * transformComponent.GetScale().y;
 }

@@ -18,6 +18,7 @@ public:
 
 	virtual void Event(SDL_Event* event);
 	virtual void Update();
+	virtual void Draw();
 	virtual void Run();
 
 	Ref<Window> GetWindow() const { return window; }
@@ -27,6 +28,7 @@ public:
 private:
 	void UpdateAnimations();
 	void UpdateAnimators();
+	void UpdateColliders();
 protected:
 	static Application* s_Instance;
 

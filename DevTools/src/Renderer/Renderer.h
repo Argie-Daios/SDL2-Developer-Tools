@@ -15,6 +15,8 @@ public:
 
 	static void Draw(entt::registry& reg);
 
+	static void DrawQuad(SDL_Rect rect, SDL_Color color = SDL_Color{255, 255, 255});
+
 	static void End();
 
 	static SDL_Texture* CreateTexture(const std::string filepath);

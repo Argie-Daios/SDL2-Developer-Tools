@@ -27,13 +27,20 @@ public:
         std::uniform_real_distribution<double> Distribution(0.0, max_value);
         return Distribution(generator);
     }
+
+    template<>
+    static int Randrange<int>(int max_value)
+    {
+        assert(max_value >= 0);
+        std::uniform_int_distribution<uint32_t> Distribution(0, max_value);
+        return Distribution(generator);
+    }
 private:
+    static std::random_device s_RandomDevice;
     static std::mt19937 generator;
-    static std::uniform_real_distribution<double> distribution;
 };
 
 std::mt19937 Random::generator = std::mt19937(std::random_device()());
-std::uniform_real_distribution<double> Random::distribution = std::uniform_real_distribution<double>(0, 1);
 
 class Propability
 {

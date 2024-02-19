@@ -67,6 +67,49 @@ void Application::UpdateAnimators()
 	}
 }
 
+void Application::UpdateColliders()
+{
+	auto view = m_Registry.view<Collider>();
+
+	for (auto entity : view)
+	{
+		Entity e = { entity };
+		auto& transformComponent = e.transform();
+		auto& colliderComponent = e.GetComponent<Collider>();
+
+		for (auto checkedEntity : view)
+		{
+			if (checkedEntity == entity) continue;
+
+			Entity e2 = { checkedEntity };
+			auto& checkedEntityTransformComponent = e2.transform();
+			auto& checkedEntityColliderComponent = e2.GetComponent<Collider>();
+
+			SDL_Rect A = { transformComponent.GetPosition().x + colliderComponent.GetOffset().x,
+				transformComponent.GetPosition().y + colliderComponent.GetOffset().y,
+				colliderComponent.GetSize().x,
+				colliderComponent.GetSize().y };
+
+			SDL_Rect B = { checkedEntityTransformComponent.GetPosition().x + checkedEntityColliderComponent.GetOffset().x,
+				checkedEntityTransformComponent.GetPosition().y + checkedEntityColliderComponent.GetOffset().y,
+				checkedEntityColliderComponent.GetSize().x,
+				checkedEntityColliderComponent.GetSize().y };
+
+			bool AABB = A.x + A.w > B.x && A.y + A.h > B.y && B.x + B.w > A.x && B.y + B.h > A.y;
+
+			if (AABB)
+			{
+				if (colliderComponent.onCollision) colliderComponent.onCollision(e2);
+				colliderComponent.collides = true;
+			}
+			else
+			{
+				colliderComponent.collides = false;
+			}
+		}
+	}
+}
+
 void Application::Update()
 {
 	m_Registry.view<Behaviour>().each([=](auto entity, auto& behaviour)
@@ -83,6 +126,12 @@ void Application::Update()
 
 	UpdateAnimations();
 	UpdateAnimators();
+	UpdateColliders();
+}
+
+void Application::Draw()
+{
+	Renderer::Draw(m_Registry);
 }
 
 void Application::Run()
@@ -91,13 +140,13 @@ void Application::Run()
 	{
 		Time::Tick();
 
-
 		Event(&Input::Event());
 		cpproutine::CoroutineManager::Update();
 		Update();
 
 		Renderer::Begin();
-		Renderer::Draw(m_Registry);
+		Draw();
 		Renderer::End();
 	}
+
 }
