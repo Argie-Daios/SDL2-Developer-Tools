@@ -42,8 +42,6 @@ Game::Game()
 		transformComponent.SetScale(glm::vec2(4, 4));
 		transformComponent.SetZValue(3.0f);
 	}
-
-	Entity en("Wizard");
 }
 
 IEnumerator Game::Attack()

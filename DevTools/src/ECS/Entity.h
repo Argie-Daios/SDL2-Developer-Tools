@@ -6,8 +6,6 @@
 
 #define REGISTRY Application::Get()->m_Registry
 
-class Entity;
-
 class Entity
 {
 public:
@@ -106,6 +104,25 @@ public:
 		GAME_ASSERT(!nameExists(name), "Name already exists!");
 
 		auto& infoComponent = GetComponent<Information>().name = name;
+	}
+
+	void AddTag(const std::string& tag)
+	{
+		auto& infoComponent = GetComponent<Information>();
+		GAME_ASSERT(std::find(infoComponent.tags.begin(), infoComponent.tags.end(), tag) == infoComponent.tags.end(),
+		"Entity " + infoComponent.name + " already contains this tag : (" + tag + ")");
+
+		infoComponent.tags.push_back(tag);
+	}
+
+	void RemoveTag(const std::string& tag)
+	{
+		auto& infoComponent = GetComponent<Information>();
+		auto it = std::find(infoComponent.tags.begin(), infoComponent.tags.end(), tag);
+		GAME_ASSERT(it != infoComponent.tags.end(),
+			"Entity " + infoComponent.name + " does not contain this tag : (" + tag + ")");
+
+		infoComponent.tags.erase(it);
 	}
 
 	entt::entity handle() { return m_EntityHandle; }
