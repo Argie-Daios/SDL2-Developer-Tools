@@ -103,6 +103,7 @@
     <ClInclude Include="src\Renderer\Renderer.h" />
     <ClInclude Include="src\Renderer\Window.h" />
     <ClInclude Include="src\Sandbox\Game.h" />
+    <ClInclude Include="src\Sandbox\Script.h" />
     <ClInclude Include="src\Tools\AnimationController\AnimationController.h" />
     <ClInclude Include="src\Tools\AnimationController\Condition.h" />
     <ClInclude Include="src\Tools\AnimationController\Edge.h" />

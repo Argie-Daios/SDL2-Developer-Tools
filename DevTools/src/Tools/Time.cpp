@@ -14,7 +14,7 @@ void Time::Init(float time)
 
 void Time::Tick()
 {
-	float time = SDL_GetTicks();
+	float time = (float)SDL_GetTicks();
 
 	m_Time = MillisecondsToSeconds(time - m_LastFrameTime);
 
@@ -23,5 +23,5 @@ void Time::Tick()
 
 float Time::TotalTime()
 {
-	return MillisecondsToSeconds(SDL_GetTicks());
+	return MillisecondsToSeconds((float)SDL_GetTicks());
 }

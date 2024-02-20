@@ -308,7 +308,7 @@ std::string AnimationController::CheckName(std::string name, int num)
 	}
 	else
 	{
-		int first = name.find_last_of('(');
+		size_t first = name.find_last_of('(');
 		name.replace(first + 1, first + 2, std::to_string(num));
 	}
 

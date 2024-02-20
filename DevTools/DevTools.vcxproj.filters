@@ -1359,6 +1359,7 @@
     <ClInclude Include="src\Tools\AnimationController\Parameter.h" />
     <ClInclude Include="src\Tools\Enums.h" />
     <ClInclude Include="src\Core\Scene.h" />
+    <ClInclude Include="src\Sandbox\Script.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">

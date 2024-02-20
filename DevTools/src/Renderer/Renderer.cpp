@@ -42,10 +42,10 @@ void Renderer::Draw(entt::registry& reg)
 
 		auto cameraTransformComponent = Application::GetCurrentScene()->GetCamera()->GetComponent<Transform>();
 
-		SDL_Rect destination = { (int)position.x - cameraTransformComponent.GetPosition().x,
-			(int)position.y - cameraTransformComponent.GetPosition().y, (int)size.x, (int)size.y};
-		destination.w *= transformComponent.GetScale().x;
-		destination.h *= transformComponent.GetScale().y;
+		SDL_Rect destination = { (int)(position.x - cameraTransformComponent.GetPosition().x),
+			(int)(position.y - cameraTransformComponent.GetPosition().y),
+			(int)(size.x * transformComponent.GetScale().x),
+			(int)(size.y * transformComponent.GetScale().y) };
 
 		SDL_Texture* texture = spriteComponent.GetTexture();
 

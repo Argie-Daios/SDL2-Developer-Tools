@@ -5,6 +5,12 @@
 class ControlledEntity
 {
 public:
+	template<typename T, typename... Args>
+	T& AddComponent(Args&&... args)
+	{
+		return m_Entity.AddComponent<T>(std::forward<Args>(args)...);
+	}
+
 	template<typename T>
 	T& GetComponent()
 	{

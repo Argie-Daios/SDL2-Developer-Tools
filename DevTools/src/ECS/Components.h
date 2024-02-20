@@ -8,6 +8,11 @@
 #include <entt.hpp>
 
 #include "Tools/AnimationController/AnimationController.h"
+#include "cpproutine/Coroutine.h"
+
+using namespace cpproutine;
+
+class Entity;
 
 struct Component
 {

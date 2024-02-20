@@ -9,6 +9,7 @@
 class Entity
 {
 public:
+	Entity() = default;
 	Entity(const std::string& name)
 	{
 		m_EntityHandle = REGISTRY.create();

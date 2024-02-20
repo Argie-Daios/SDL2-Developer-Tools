@@ -11,8 +11,4 @@ public:
 	Game();
 
 	virtual void Update() override;
-private:
-	IEnumerator Attack();
-private:
-	Ref<Entity> m_Entity1;
 };

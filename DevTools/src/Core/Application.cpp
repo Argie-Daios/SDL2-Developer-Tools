@@ -18,13 +18,8 @@ Application::Application()
 
 	Renderer::Init(window->Get());
 
-	s_Scenes.emplace("Start Scene", CreateRef<Scene>());
-	currentScene = "Start Scene";
-	s_Scenes[currentScene]->m_Camera = CreateRef<Entity>("Camera");
-
-	s_Scenes.emplace("Rofl Scene", CreateRef<Scene>());
-	currentScene = "Rofl Scene";
-	s_Scenes.find("Rofl Scene")->second->m_Camera = CreateRef<Entity>("Camera");
+	AddScene("Default Scene");
+	ChangeScene("Default Scene");
 }
 
 Application::~Application()
@@ -46,10 +41,20 @@ void Application::Event(SDL_Event* event)
 	}
 }
 
+void Application::AddScene(const std::string& scene)
+{
+	GAME_ASSERT(s_Scenes.find(scene) == s_Scenes.end(), "Scene already exists");
+
+	s_Scenes.emplace(scene, CreateRef<Scene>());
+	std::string temp = currentScene;
+	currentScene = scene;
+	s_Scenes[currentScene]->m_Camera = CreateRef<Entity>("Camera");
+	currentScene = temp;
+}
+
 void Application::ChangeScene(const std::string& scene)
 {
 	GAME_ASSERT(s_Scenes.find(scene) != s_Scenes.end(), "This scene does not exist");
-	GAME_ASSERT(currentScene != scene, "This scene is already active");
 
 	currentScene = scene;
 }
@@ -100,15 +105,15 @@ void Application::UpdateColliders()
 			auto& checkedEntityTransformComponent = e2.transform();
 			auto& checkedEntityColliderComponent = e2.GetComponent<Collider>();
 
-			SDL_Rect A = { transformComponent.GetPosition().x + colliderComponent.GetOffset().x,
-				transformComponent.GetPosition().y + colliderComponent.GetOffset().y,
-				colliderComponent.GetSize().x,
-				colliderComponent.GetSize().y };
+			SDL_Rect A = { (int)(transformComponent.GetPosition().x + colliderComponent.GetOffset().x),
+				(int)(transformComponent.GetPosition().y + colliderComponent.GetOffset().y),
+				(int)colliderComponent.GetSize().x,
+				(int)colliderComponent.GetSize().y };
 
-			SDL_Rect B = { checkedEntityTransformComponent.GetPosition().x + checkedEntityColliderComponent.GetOffset().x,
-				checkedEntityTransformComponent.GetPosition().y + checkedEntityColliderComponent.GetOffset().y,
-				checkedEntityColliderComponent.GetSize().x,
-				checkedEntityColliderComponent.GetSize().y };
+			SDL_Rect B = { (int)(checkedEntityTransformComponent.GetPosition().x + checkedEntityColliderComponent.GetOffset().x),
+				(int)(checkedEntityTransformComponent.GetPosition().y + checkedEntityColliderComponent.GetOffset().y),
+				(int)checkedEntityColliderComponent.GetSize().x,
+				(int)checkedEntityColliderComponent.GetSize().y };
 
 			bool AABB = A.x + A.w > B.x && A.y + A.h > B.y && B.x + B.w > A.x && B.y + B.h > A.y;
 

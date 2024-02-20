@@ -2,6 +2,7 @@
 #include "Renderer/Renderer.h"
 #include "Entity.h"
 #include "Tools/Positioner.h"
+#include "Tools/Input.h"
 
 #include <SDL_ttf.h>
 #include <iostream>
@@ -189,7 +190,7 @@ Animation::Animation()
 
 Animation::Animation(const std::string& image_path, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
 	: Component(Entity::recentEntity), texture_path(image_path), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
-	totalRows(totalRows), delay(delay), loop(loop)
+	totalRows(totalRows), delay(delay), loop(loop), timeElapsed(0.0f)
 {
 	Entity e = { m_Entity };
 	auto& transformComponent = e.transform();
@@ -199,7 +200,6 @@ Animation::Animation(const std::string& image_path, int currentFrames, int curre
 	texWidth = spriteRenderer.GetSource().w;
 	texHeight = spriteRenderer.GetSource().h;
 	transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
-	Animate();
 }
 
 Animation::Animation(const Animation& animation)
@@ -478,10 +478,10 @@ Collider::Collider()
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.x = transformComponent.GetPosition().x;
-	rect.y = transformComponent.GetPosition().y;
-	rect.w = transformComponent.GetSize().x * transformComponent.GetScale().x;
-	rect.h = transformComponent.GetSize().y * transformComponent.GetScale().y;
+	rect.x = (int)transformComponent.GetPosition().x;
+	rect.y = (int)transformComponent.GetPosition().y;
+	rect.w = (int)(transformComponent.GetSize().x * transformComponent.GetScale().x);
+	rect.h = (int)(transformComponent.GetSize().y * transformComponent.GetScale().y);
 }
 
 Collider::Collider(const glm::vec2& offset, bool trigger)
@@ -490,10 +490,10 @@ Collider::Collider(const glm::vec2& offset, bool trigger)
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.x = transformComponent.GetPosition().x;
-	rect.y = transformComponent.GetPosition().y;
-	rect.w = transformComponent.GetSize().x * transformComponent.GetScale().x;
-	rect.h = transformComponent.GetSize().y * transformComponent.GetScale().y;
+	rect.x = (int)transformComponent.GetPosition().x;
+	rect.y = (int)transformComponent.GetPosition().y;
+	rect.w = (int)(transformComponent.GetSize().x * transformComponent.GetScale().x);
+	rect.h = (int)(transformComponent.GetSize().y * transformComponent.GetScale().y);
 }
 
 void Collider::SetSize(const glm::vec2& size)
@@ -501,6 +501,6 @@ void Collider::SetSize(const glm::vec2& size)
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.w = size.x * transformComponent.GetScale().x;
-	rect.h = size.y * transformComponent.GetScale().y;
+	rect.w = (int)(size.x * transformComponent.GetScale().x);
+	rect.h = (int)(size.y * transformComponent.GetScale().y);
 }

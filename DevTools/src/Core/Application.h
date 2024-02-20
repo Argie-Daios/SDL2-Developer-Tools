@@ -21,8 +21,10 @@ public:
 	virtual void Draw();
 	virtual void Run();
 
-	Ref<Window> GetWindow() const { return window; }
+	static Ref<Window> GetWindow() { return window; }
+
 	static Ref<Scene> GetCurrentScene() { return s_Scenes[currentScene]; }
+	static void AddScene(const std::string& scene);
 	static void ChangeScene(const std::string& scene);
 
 	inline static Application* Get() { return s_Instance; }
@@ -30,12 +32,13 @@ private:
 	void UpdateAnimations();
 	void UpdateAnimators();
 	void UpdateColliders();
+private:
+	static std::unordered_map<std::string, Ref<Scene>> s_Scenes;
+	static std::string currentScene;
 protected:
 	static Application* s_Instance;
 
 	static Ref<Window> window;
-	static std::unordered_map<std::string, Ref<Scene>> s_Scenes;
-	static std::string currentScene;
 
 	bool m_Running = true;
 
