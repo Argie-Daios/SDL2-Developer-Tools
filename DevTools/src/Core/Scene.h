@@ -3,6 +3,7 @@
 #include "Core/Macros.h"
 
 #include <entt.hpp>
+#include <glm/glm.hpp>
 
 class Entity;
 struct Transform;
@@ -14,6 +15,9 @@ public:
 	Scene(const Scene&);
 
 	void AddEntity(const std::string& name);
+	void RemoveEntity(const std::string& name);
+	Entity Instantiate(Entity object, const glm::vec2& position);
+	void DeleteEntity(Entity entity);
 
 	Ref<Entity> GetCamera() { return m_Camera; }
 	Entity GetEntity(const std::string& name);

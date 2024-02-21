@@ -53,7 +53,7 @@ void Renderer::Draw(entt::registry& reg)
 		if(color.r != 255 || color.g != 255 || color.b != 255)
 			SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
 
-		SDL_RenderCopyEx(s_Renderer, texture, &source, &destination, 0, nullptr, transformComponent.GetFlip());
+		SDL_RenderCopyEx(s_Renderer, texture, &source, &destination, transformComponent.GetRotation(), nullptr, transformComponent.GetFlip());
 	}
 }
 

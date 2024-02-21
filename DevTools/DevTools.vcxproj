@@ -21,13 +21,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -543,12 +543,14 @@
     <ClCompile Include="src\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Renderer\Window.cpp" />
     <ClCompile Include="src\Sandbox\Game.cpp" />
+    <ClCompile Include="src\Sandbox\Script2.h" />
     <ClCompile Include="src\Tools\AnimationController\AnimationController.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Condition.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Parameter.cpp" />
     <ClCompile Include="src\Tools\Input.cpp" />
     <ClCompile Include="src\Tools\Positioner.cpp" />
+    <ClCompile Include="src\Tools\Random.cpp" />
     <ClCompile Include="src\Tools\Time.cpp" />
     <ClCompile Include="vendor\cpproutine\include\cpproutine\Coroutine.cpp" />
     <ClCompile Include="vendor\cpproutine\include\cpproutine\UUID.cpp" />

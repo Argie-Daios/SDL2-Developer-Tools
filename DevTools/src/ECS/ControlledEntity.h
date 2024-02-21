@@ -16,6 +16,26 @@ public:
 	{
 		return m_Entity.GetComponent<T>();
 	}
+
+	Entity Instantiate(Entity object, const glm::vec2& position)
+	{
+		return Application::GetCurrentScene()->Instantiate(object, position);
+	}
+
+	void DeleteEntity(Entity entity)
+	{
+		Application::GetCurrentScene()->DeleteEntity(entity);
+	}
+
+	Entity GetEntity(const std::string& name)
+	{
+		return Application::GetCurrentScene()->GetEntity(name);
+	}
+
+	Entity GameObject()
+	{
+		return m_Entity;
+	}
 protected:
 	virtual void OnCreate() {}
 	virtual void OnDestroy() {}

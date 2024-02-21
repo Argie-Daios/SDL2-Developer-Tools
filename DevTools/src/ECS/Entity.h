@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Application.h"
-
 #include "Components.h"
 
 #define REGISTRY Application::GetCurrentScene()->m_Registry
@@ -28,7 +27,11 @@ public:
 		m_EntityHandle = handle;
 	}
 
-	Entity(const Entity& other) = default;
+	Entity(const Entity& other)
+	{
+		m_EntityHandle = other.m_EntityHandle;
+
+	}
 
 	template<typename T, typename... Args>
 	T& AddComponent(Args&&... args)
@@ -76,6 +79,29 @@ public:
 		GAME_ASSERT(HasComponent<T>(), "Entity does not have this component!");
 
 		REGISTRY.remove<T>(m_EntityHandle);
+	}
+
+	bool HasChild()
+	{
+		return HasComponent<Children>();
+	}
+
+	Entity CreateEntityAndCopyComponents()
+	{
+		std::string name = randomStringGenerator(30);
+		Entity ent(name);
+		ent.RemoveComponent<Children>();
+		ent.RemoveComponent<Transform>();
+		
+		ent.CopyChildren(*this);
+		ent.CopyTransform(*this);
+		ent.CopySpriteRenderer(*this);
+		ent.CopyAnimation(*this);
+		ent.CopyText(*this);
+		ent.CopyBehaviour(*this);
+		ent.CopyCollider(*this);
+
+		return ent;
 	}
 
 	std::string name()
@@ -132,6 +158,11 @@ public:
 private:
 	struct Children
 	{
+		Children() {};
+		Children(const Children& childrenComponent)
+		{
+			children = childrenComponent.children;
+		}
 		std::list<entt::entity> children;
 	};
 
@@ -140,6 +171,115 @@ private:
 		std::string name;
 		std::vector<std::string> tags;
 	};
+
+	void CopyChildren(Entity ent)
+	{
+		if (!ent.HasComponent<Children>()) return;
+
+		auto& childrenComponentSrc = ent.GetComponent<Children>();
+		auto& childrenComponent = AddComponent<Children>();
+
+		for (auto entity : childrenComponentSrc.children)
+		{
+			childrenComponent.children.push_back(entity);
+		}
+	}
+
+	void CopyTransform(Entity ent)
+	{
+		if (!ent.HasComponent<Transform>()) return;
+
+		auto& transformComponentSrc = ent.GetComponent<Transform>();
+
+		auto position = transformComponentSrc.GetPosition();
+		auto rotation = transformComponentSrc.GetRotation();
+		auto scale = transformComponentSrc.GetScale();
+		auto size = transformComponentSrc.GetSize();
+		auto zValue = transformComponentSrc.GetZValue();
+		auto flip = transformComponentSrc.GetFlip();
+
+		auto& transformComponent = AddComponent<Transform>(position,
+			zValue, rotation, scale);
+
+		transformComponent.SetSize(size);
+		transformComponent.SetFlip(flip);
+	}
+
+	void CopySpriteRenderer(Entity ent)
+	{
+		if (!ent.HasComponent<SpriteRenderer>()) return;
+
+		auto& spriteRendererSrc = ent.GetComponent<SpriteRenderer>();
+
+		auto texPath = spriteRendererSrc.GetTexturePath();
+		auto color = spriteRendererSrc.GetColor();
+		auto source = spriteRendererSrc.GetSource();
+
+		auto& spriteRenderer = AddComponent<SpriteRenderer>(texPath);
+		spriteRenderer.SetTintColor(color);
+		spriteRenderer.SetSource(source);
+	}
+
+	void CopyAnimation(Entity ent)
+	{
+		if (!ent.HasComponent<Animation>()) return;
+
+		auto& animationSrc = ent.GetComponent<Animation>();
+
+		auto image_path = animationSrc.GetTexturePath();
+		auto currentFrames = animationSrc.GetCurrentFrames();
+		auto currentRow = animationSrc.GetCurrentRow();
+		auto totalFrames = animationSrc.GetTotalFrames();
+		auto totalRows = animationSrc.GetTotalRows();
+		auto delay = animationSrc.GetDelay();
+		auto loop = animationSrc.GetLoop();
+
+		auto& animation = AddComponent<Animation>(image_path,
+			currentFrames, currentRow, totalFrames, totalRows,
+			delay, loop);
+	}
+
+	void CopyAnimator(Entity ent)
+	{
+		// TODO
+	}
+
+	void CopyText(Entity ent)
+	{
+		if (!ent.HasComponent<Text>()) return;
+
+		auto& textSrc = ent.GetComponent<Text>();
+
+		auto label = textSrc.GetLabel();
+		auto font_path = textSrc.GetFontPath();
+		auto font_size = textSrc.GetFontSize();
+		auto color = textSrc.GetColor();
+
+		auto& text = AddComponent<Text>(label, font_path, font_size, color);
+	}
+
+	void CopyBehaviour(Entity ent)
+	{
+		if (!ent.HasComponent<Behaviour>()) return;
+
+		auto& behaviourSrc = ent.GetComponent<Behaviour>();
+		auto& behaviour = AddComponent<Behaviour>();
+		behaviour.Instance = nullptr;
+		behaviour.InstantiateScript = behaviourSrc.InstantiateScript;
+		behaviour.DestroyInstanceScript = behaviourSrc.DestroyInstanceScript;
+	}
+
+	void CopyCollider(Entity ent)
+	{
+		if (!ent.HasComponent<Collider>()) return;
+
+		auto& colliderSrc = ent.GetComponent<Collider>();
+
+		auto offset = colliderSrc.GetOffset();
+		auto trigger = colliderSrc.GetTrigger();
+
+		auto& collider = AddComponent<Collider>(offset, trigger);
+	}
 
 	bool nameExists(const std::string& name)
 	{

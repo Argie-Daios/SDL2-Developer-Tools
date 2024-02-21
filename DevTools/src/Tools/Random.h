@@ -40,8 +40,6 @@ private:
     static std::mt19937 generator;
 };
 
-std::mt19937 Random::generator = std::mt19937(std::random_device()());
-
 class Propability
 {
 public:

@@ -17,6 +17,7 @@ class AnimationController
 public:
 	AnimationController();
 	AnimationController(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations);
+	AnimationController(const AnimationController&) = default;
 
 	void Update();
 
@@ -53,6 +54,7 @@ private:
 	int FindLink(const std::string& source, const std::string& destination);
 private:
 	std::string m_Entry;
+	std::string m_Current;
 
 	std::unordered_map<std::string, Ref<Animation>> m_Animations;
 	std::unordered_map<std::string, std::vector<Edge>> m_Links;

@@ -205,6 +205,7 @@ Animation::Animation(const std::string& image_path, int currentFrames, int curre
 Animation::Animation(const Animation& animation)
 {
 	m_Entity = animation.m_Entity;
+	texture_path = animation.texture_path;
 	currentFrames = animation.currentFrames;
 	currentRow = animation.currentRow;
 	totalFrames = animation.totalFrames;
@@ -212,10 +213,14 @@ Animation::Animation(const Animation& animation)
 	delay = animation.delay;
 	loop = animation.loop;
 	timeElapsed = 0.0f;
+	texWidth = animation.texWidth;
+	texHeight = animation.texHeight;
 }
 
 void Animation::Animate()
 {
+	if (texture_path.find("Attack") != std::string::npos)
+		std::cout << "Time Elapsed : " << timeElapsed << " Current Index : " << CurrentFrameIndex() << std::endl;
 	if (!loop && isComplete()) return;
 
 	Entity e = { m_Entity };
@@ -289,7 +294,7 @@ Animator::Animator()
 	
 }
 
-Animator::Animator(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations)
+Animator::Animator(const std::initializer_list<AnimationNode>& animations)
 	: Component(Entity::recentEntity)
 {
 	for (auto element : animations)
@@ -422,6 +427,7 @@ Text::Text(const std::string& label, const std::string& font_path, int font_size
 
 Text::Text(const Text& text)
 {
+	m_Entity = text.m_Entity;
 	label = text.label;
 	font_path = text.font_path;
 	font_size = text.font_size;
@@ -473,27 +479,23 @@ void Text::UpdateMesh()
 // Collider
 
 Collider::Collider()
-	: Component(Entity::recentEntity), offset(glm::vec2(0.0f, 0.0f)), trigger(false)
+	: Component(Entity::recentEntity), offset(glm::vec2(0.0f, 0.0f)), size(glm::vec2(0.0f, 0.0f)), trigger(false), collides(false)
 {
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.x = (int)transformComponent.GetPosition().x;
-	rect.y = (int)transformComponent.GetPosition().y;
-	rect.w = (int)(transformComponent.GetSize().x * transformComponent.GetScale().x);
-	rect.h = (int)(transformComponent.GetSize().y * transformComponent.GetScale().y);
+	size.x = transformComponent.GetSize().x * transformComponent.GetScale().x;
+	size.y = transformComponent.GetSize().y * transformComponent.GetScale().y;
 }
 
 Collider::Collider(const glm::vec2& offset, bool trigger)
-	: Component(Entity::recentEntity), offset(offset), trigger(trigger)
+	: Component(Entity::recentEntity), offset(offset), size(glm::vec2(0.0f, 0.0f)), trigger(trigger), collides(false)
 {
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.x = (int)transformComponent.GetPosition().x;
-	rect.y = (int)transformComponent.GetPosition().y;
-	rect.w = (int)(transformComponent.GetSize().x * transformComponent.GetScale().x);
-	rect.h = (int)(transformComponent.GetSize().y * transformComponent.GetScale().y);
+	size.x = transformComponent.GetSize().x * transformComponent.GetScale().x;
+	size.y = transformComponent.GetSize().y * transformComponent.GetScale().y;
 }
 
 void Collider::SetSize(const glm::vec2& size)
@@ -501,6 +503,6 @@ void Collider::SetSize(const glm::vec2& size)
 	Entity en = { m_Entity };
 	auto& transformComponent = en.transform();
 
-	rect.w = (int)(size.x * transformComponent.GetScale().x);
-	rect.h = (int)(size.y * transformComponent.GetScale().y);
+	this->size.x = size.x * transformComponent.GetScale().x;
+	this->size.y = size.y * transformComponent.GetScale().y;
 }

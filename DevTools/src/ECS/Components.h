@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Tools/AnimationController/AnimationController.h"
+
 #include <SDL.h>
 #include <string>
 #include <glm/glm.hpp>
@@ -7,19 +9,17 @@
 #include <list>
 #include <entt.hpp>
 
-#include "Tools/AnimationController/AnimationController.h"
-#include "cpproutine/Coroutine.h"
-
-using namespace cpproutine;
-
 class Entity;
 
 struct Component
 {
 public:
 	Component(entt::entity entity = entt::null) { m_Entity = entity; }
+
+	void SetEntity(entt::entity entity) { m_Entity = entity; }
 protected:
 	entt::entity m_Entity;
+	friend class Entity;
 };
 
 struct Transform : public Component
@@ -45,7 +45,7 @@ public:
 	glm::vec2 GetSize() const { return size; }
 private:
 	glm::vec2 position = glm::vec2(0.0f, 0.0f);
-	glm::vec2 size;
+	glm::vec2 size = glm::vec2(0.0f, 0.0f);
 	float zValue = 0.0f;
 	float rotation = 0.0f;
 	glm::vec2 scale = glm::vec2(1.0f, 1.0f);
@@ -92,6 +92,7 @@ public:
 
 	bool isComplete();
 
+	std::string GetTexturePath() const { return texture_path; }
 	int GetCurrentFrames() const { return currentFrames; }
 	int GetCurrentRow() const { return currentRow; }
 	int GetTotalFrames() const { return totalFrames; }
@@ -119,8 +120,8 @@ private:
 
 	float timeElapsed = 0.0f;
 
-	int texWidth;
-	int texHeight;
+	int texWidth = 0;
+	int texHeight = 0;
 
 	friend struct Animator;
 	friend class AnimationController;
@@ -216,18 +217,17 @@ public:
 	void SetOffset(const glm::vec2& offset) { this->offset = offset; }
 	void SetSize(const glm::vec2& size);
 	void SetTrigger(bool trigger) { this->trigger = trigger; }
+	void SetCollision(bool collides) { this->collides = collides; }
 
 	glm::vec2 GetOffset() const { return offset; }
-	glm::vec2 GetSize() const { return glm::vec2(rect.w, rect.h); }
-	bool SetTrigger() const { return trigger; }
+	glm::vec2 GetSize() const { return size; }
+	bool GetTrigger() const { return trigger; }
 	bool Collides() const { return collides; }
 
 	std::function<void(Entity)> onCollision = nullptr;
 private:
 	glm::vec2 offset;
-	SDL_Rect rect;
+	glm::vec2 size;
 	bool trigger;
 	bool collides;
-
-	friend class Application;
 };

@@ -120,11 +120,11 @@ void Application::UpdateColliders()
 			if (AABB)
 			{
 				if (colliderComponent.onCollision) colliderComponent.onCollision(e2);
-				colliderComponent.collides = true;
+				colliderComponent.SetCollision(true);
 			}
 			else
 			{
-				colliderComponent.collides = false;
+				colliderComponent.SetCollision(false);
 			}
 		}
 	}
@@ -141,7 +141,8 @@ void Application::Update()
 			behaviour.Instance->OnCreate();
 		}
 
-		behaviour.Instance->OnUpdate();
+		if (s_Scenes[currentScene]->m_Registry.valid(entity))
+			behaviour.Instance->OnUpdate();
 	});
 
 	UpdateAnimations();

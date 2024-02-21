@@ -16,19 +16,27 @@ AnimationController::AnimationController(const std::initializer_list<std::pair<s
 		AddAnimation(element.first, element.second);
 	}
 
-	if(!m_Animations.empty())
+	if (!m_Animations.empty())
+	{
 		m_Entry = m_Animations.begin()->first;
+		m_Current = m_Entry;
+	}
 }
+
+//AnimationController::AnimationController(const AnimationController& animationController)
+//{
+//
+//}
 
 void AnimationController::Update()
 {
-	if (m_Entry.empty()) return;
+	if (m_Current.empty()) return;
 
-	auto elem = m_Animations[m_Entry];
+	auto elem = m_Animations[m_Current];
 
 	// std::cout << "Current Animation : " << m_Entry << std::endl;
 
-	auto links = m_Links[m_Entry];
+	auto links = m_Links[m_Current];
 
 	if (links.empty()) return;
 
@@ -47,7 +55,7 @@ void AnimationController::Update()
 		if ((!edge.GetExitTime() && canPass) || (elem->isComplete() && canPass))
 		{
 			elem->timeElapsed = 0.0f;
-			m_Entry = edge.m_DestinationAnimationName;
+			m_Current = edge.m_DestinationAnimationName;
 			return;
 		}
 	}
@@ -56,12 +64,12 @@ void AnimationController::Update()
 
 Ref<Animation> AnimationController::GetCurrentAnimation()
 {
-	if (m_Entry.empty())
+	if (m_Current.empty())
 	{
 		return nullptr;
 	}
 
-	return m_Animations[m_Entry];
+	return m_Animations[m_Current];
 }
 
 void AnimationController::AddAnimation(std::string name, Ref<Animation> animation)
@@ -74,6 +82,7 @@ void AnimationController::AddAnimation(std::string name, Ref<Animation> animatio
 	if (m_Animations.size() == 1)
 	{
 		m_Entry = name;
+		m_Current = m_Entry;
 	}
 }
 
@@ -85,6 +94,8 @@ void AnimationController::RemoveAnimation(const std::string& name)
 
 	auto it = m_Links.find(name);
 
+	bool firstAnimation = it == m_Links.begin();
+
 	it->second.clear();
 	m_Links.erase(it);
 
@@ -95,9 +106,10 @@ void AnimationController::RemoveAnimation(const std::string& name)
 		}));
 	}
 
-	if (!m_Animations.empty())
+	if (!firstAnimation)
 	{
 		m_Entry = m_Animations.begin()->first;
+		m_Current = m_Entry;
 	}
 }
 

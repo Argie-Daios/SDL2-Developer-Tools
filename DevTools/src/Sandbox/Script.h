@@ -2,6 +2,8 @@
 
 #include "ECS/ControlledEntity.h"
 #include "Tools/Input.h"
+#include "Tools/Math.h"
+#include "Tools/Time.h"
 #include <cpproutine/Coroutine.h>
 
 using namespace cpproutine;
@@ -13,6 +15,7 @@ public:
 	{
 		transform = &GetComponent<Transform>();
 		animator = &GetComponent<Animator>();
+		X = GetEntity("X");
 	}
 
 	void OnUpdate()
@@ -33,7 +36,7 @@ public:
 		{
 			animator->ChangeBoolParameterValue("Running", false);
 		}
-		if (Input::IsKeyDown(Key::SPACE))
+		if (Input::IsKeyDown(Key::SPACE) && !Attacking)
 		{
 			CoroutineManager::StartCoroutine(Attack());
 		}
@@ -42,10 +45,33 @@ public:
 	IEnumerator Attack()
 	{
 		animator->ChangeBoolParameterValue("Attack", true);
-		yield_return NewReturnType<WaitForSeconds>(0.1f * 8.0f);
+		Attacking = true;
+		yield_return NewReturnType<WaitForSeconds>(0.1f * 7.0f);
 		animator->ChangeBoolParameterValue("Attack", false);
+		Entity ent = Instantiate(X, GetComponent<Transform>().GetPosition() + glm::vec2(400.0f, 220.0f));
+		CoroutineManager::StartCoroutine(Shoot(ent));
+		Attacking = false;
+	}
+
+	IEnumerator Shoot(Entity ent)
+	{
+		float duration = 2.0f;
+		float elapsedTime = 0.0f;
+		glm::vec2 src = ent.transform().GetPosition();
+		glm::vec2 dst = ent.transform().GetPosition() + glm::vec2(700.0f, 0.0f);
+		while (elapsedTime < duration)
+		{
+			glm::vec2 newPos = Math::Lerp(src, dst, elapsedTime / duration);
+			ent.transform().SetPosition(newPos);
+			elapsedTime += Time::DeltaTime();
+			yield_return nullptr;
+		}
+
+		yield_return nullptr;
 	}
 private:
 	Transform* transform;
 	Animator* animator;
+	Entity X;
+	bool Attacking = false;
 };

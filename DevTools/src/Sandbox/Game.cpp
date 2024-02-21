@@ -5,6 +5,7 @@
 #include "Tools/Math.h"
 #include "Tools/Positioner.h"
 #include "Script.h"
+#include "Script2.h"
 
 Game::Game()
 	: Application()
@@ -18,8 +19,8 @@ Game::Game()
 		std::initializer_list({
 			AnimationNode("Idle", CreateRef<Animation>("assets/textures/Wizard/Idle.png", 6, 0, 6, 1)),
 			AnimationNode("Run", CreateRef<Animation>("assets/textures/Wizard/Run.png", 8, 0, 8, 1)),
-			AnimationNode("Attack", CreateRef<Animation>("assets/textures/Wizard/Attack1.png", 8, 0, 8, 1))
-			})
+			AnimationNode("Attack", CreateRef<Animation>("assets/textures/Wizard/Attack1.png", 8, 0, 8, 1, 100, false))
+		})
 	);
 
 	animatorComponent.AddTwoSideEdge("Idle", "Run", false, false);
@@ -47,11 +48,13 @@ Game::Game()
 
 	GetCurrentScene()->GetEntity("Wizard").AddComponent<Behaviour>().Bind<Wizard>();
 
-	ChangeScene("Second Scene");
-
 	GetCurrentScene()->AddEntity("X");
 
-	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<SpriteRenderer>("assets/textures/X.png");
+	GetCurrentScene()->GetEntity("X").AddComponent<Behaviour>().Bind<Rotated>();
+
+	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("assets/textures/Effects/Vortex.png", 48, 0, 9, 7, 60);
+
+	GetCurrentScene()->GetEntity("X").transform().SetScale(glm::vec2(0.5f, 0.5f));
 }
 
 static bool Default = false;

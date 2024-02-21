@@ -1400,5 +1400,7 @@
     <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
     <ClCompile Include="src\Tools\AnimationController\AnimationController.cpp" />
     <ClCompile Include="src\Core\Scene.cpp" />
+    <ClCompile Include="src\Tools\Random.cpp" />
+    <ClCompile Include="src\Sandbox\Script2.h" />
   </ItemGroup>
 </Project>
