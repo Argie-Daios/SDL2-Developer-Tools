@@ -1360,6 +1360,7 @@
     <ClInclude Include="src\Tools\Enums.h" />
     <ClInclude Include="src\Core\Scene.h" />
     <ClInclude Include="src\Sandbox\Script.h" />
+    <ClInclude Include="src\Tools\AssetManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -1402,5 +1403,6 @@
     <ClCompile Include="src\Core\Scene.cpp" />
     <ClCompile Include="src\Tools\Random.cpp" />
     <ClCompile Include="src\Sandbox\Script2.h" />
+    <ClCompile Include="src\Tools\AssetManager.cpp" />
   </ItemGroup>
 </Project>

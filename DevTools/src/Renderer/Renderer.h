@@ -18,10 +18,14 @@ public:
 	static void DrawQuad(SDL_Rect rect, SDL_Color color = SDL_Color{255, 255, 255});
 
 	static void End();
+	
+	static void SetRender(bool flag) { render = flag; }
 
 	static SDL_Texture* CreateTexture(const std::string filepath);
 	static SDL_Texture* CreateTextureFromSurface(SDL_Surface* surface);
 	static glm::ivec2 GetTextureDimensions(SDL_Texture* texture);
 private:
 	static SDL_Renderer* s_Renderer;
+	static bool render;
+	friend class AssetManager;
 };

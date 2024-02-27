@@ -8,6 +8,7 @@
 #include <SDL_image.h>
 
 SDL_Renderer* Renderer::s_Renderer = nullptr;
+bool Renderer::render = true;
 
 void Renderer::Init(SDL_Window* window)
 {
@@ -28,9 +29,11 @@ void Renderer::Draw(entt::registry& reg)
 {
 	auto view = reg.view<Transform, SpriteRenderer>();
 
+	if (!render) return;
+
 	for (auto entity : view)
 	{
-		Entity e = { entity };
+		Entity e = { entity, Application::GetCurrentScene().get() };
 
 		auto& transformComponent = e.transform();
 		auto& spriteComponent = e.GetComponent<SpriteRenderer>();
@@ -40,14 +43,14 @@ void Renderer::Draw(entt::registry& reg)
 
 		SDL_Rect source = spriteComponent.GetSource();
 
-		auto cameraTransformComponent = Application::GetCurrentScene()->GetCamera()->GetComponent<Transform>();
+		auto cameraTransformComponent = Application::GetCurrentScene()->GetCamera().GetComponent<Transform>();
 
 		SDL_Rect destination = { (int)(position.x - cameraTransformComponent.GetPosition().x),
 			(int)(position.y - cameraTransformComponent.GetPosition().y),
 			(int)(size.x * transformComponent.GetScale().x),
 			(int)(size.y * transformComponent.GetScale().y) };
 
-		SDL_Texture* texture = spriteComponent.GetTexture();
+		SDL_Texture* texture = AssetManager::GetTexture(spriteComponent.GetTextureID()).texture;
 
 		SDL_Color color = spriteComponent.GetSDLColor();
 		if(color.r != 255 || color.g != 255 || color.b != 255)

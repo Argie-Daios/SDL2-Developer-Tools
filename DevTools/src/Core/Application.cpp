@@ -20,6 +20,7 @@ Application::Application()
 
 	AddScene("Default Scene");
 	ChangeScene("Default Scene");
+	
 }
 
 Application::~Application()
@@ -48,7 +49,7 @@ void Application::AddScene(const std::string& scene)
 	s_Scenes.emplace(scene, CreateRef<Scene>());
 	std::string temp = currentScene;
 	currentScene = scene;
-	s_Scenes[currentScene]->m_Camera = CreateRef<Entity>("Camera");
+	s_Scenes[currentScene]->AddEntity("Camera");
 	currentScene = temp;
 }
 
@@ -65,7 +66,7 @@ void Application::UpdateAnimations()
 
 	for (auto entity : view)
 	{
-		Entity e = { entity };
+		Entity e = { entity, s_Scenes[currentScene].get()};
 
 		auto& animationComponent = e.GetComponent<Animation>();
 
@@ -79,7 +80,7 @@ void Application::UpdateAnimators()
 
 	for (auto entity : view)
 	{
-		Entity e = { entity };
+		Entity e = { entity, s_Scenes[currentScene].get()};
 
 		auto& animatorComponent = e.GetComponent<Animator>();
 
@@ -93,7 +94,7 @@ void Application::UpdateColliders()
 
 	for (auto entity : view)
 	{
-		Entity e = { entity };
+		Entity e = { entity, s_Scenes[currentScene].get()};
 		auto& transformComponent = e.transform();
 		auto& colliderComponent = e.GetComponent<Collider>();
 
@@ -101,7 +102,7 @@ void Application::UpdateColliders()
 		{
 			if (checkedEntity == entity) continue;
 
-			Entity e2 = { checkedEntity };
+			Entity e2 = { checkedEntity, s_Scenes[currentScene].get() };
 			auto& checkedEntityTransformComponent = e2.transform();
 			auto& checkedEntityColliderComponent = e2.GetComponent<Collider>();
 
@@ -132,12 +133,12 @@ void Application::UpdateColliders()
 
 void Application::Update()
 {
-	s_Scenes[currentScene]->m_Registry.view<Behaviour>().each([=](auto entity, auto& behaviour)
+	s_Scenes[currentScene]->m_Registry.view<Behaviour>().each([=](entt::entity entity, auto& behaviour)
 	{
 		if (!behaviour.Instance)
 		{
 			behaviour.Instance = behaviour.InstantiateScript();
-			behaviour.Instance->m_Entity = Entity{ entity };
+			behaviour.Instance->m_Entity = Entity{ entity, s_Scenes[currentScene].get() };
 			behaviour.Instance->OnCreate();
 		}
 

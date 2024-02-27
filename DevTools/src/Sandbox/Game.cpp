@@ -10,6 +10,13 @@
 Game::Game()
 	: Application()
 {
+	AssetManager::LoadTexture("Wizard_Idle", "assets/textures/Wizard/Idle.png");
+	AssetManager::LoadTexture("Wizard_Run", "assets/textures/Wizard/Run.png");
+	AssetManager::LoadTexture("Wizard_Attack", "assets/textures/Wizard/Attack1.png");
+	AssetManager::LoadTexture("X", "assets/textures/X.png");
+	AssetManager::LoadTexture("Vortex", "assets/textures/Effects/Vortex.png");
+	AssetManager::LoadFont("Arial", "assets/fonts/arial.ttf", 50);
+
 	AddScene("Second Scene");
 
 	GetCurrentScene()->AddEntity("Wizard");
@@ -17,9 +24,9 @@ Game::Game()
 	auto& transformComponent = GetCurrentScene()->GetEntity("Wizard").GetComponent<Transform>();
 	auto& animatorComponent = GetCurrentScene()->GetEntity("Wizard").AddComponent<Animator>(
 		std::initializer_list({
-			AnimationNode("Idle", CreateRef<Animation>("assets/textures/Wizard/Idle.png", 6, 0, 6, 1)),
-			AnimationNode("Run", CreateRef<Animation>("assets/textures/Wizard/Run.png", 8, 0, 8, 1)),
-			AnimationNode("Attack", CreateRef<Animation>("assets/textures/Wizard/Attack1.png", 8, 0, 8, 1, 100, false))
+			AnimationNode("Idle", CreateRef<Animation>("Wizard_Idle", 6, 0, 6, 1)),
+			AnimationNode("Run", CreateRef<Animation>("Wizard_Run", 8, 0, 8, 1)),
+			AnimationNode("Attack", CreateRef<Animation>("Wizard_Attack", 8, 0, 8, 1, 100, true))
 		})
 	);
 
@@ -52,9 +59,14 @@ Game::Game()
 
 	GetCurrentScene()->GetEntity("X").AddComponent<Behaviour>().Bind<Rotated>();
 
-	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("assets/textures/Effects/Vortex.png", 48, 0, 9, 7, 60);
+	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("Vortex", 48, 0, 9, 7, 20);
 
-	GetCurrentScene()->GetEntity("X").transform().SetScale(glm::vec2(0.5f, 0.5f));
+	GetCurrentScene()->AddEntity("Entity 1");
+	GetCurrentScene()->GetEntity("Entity 1").AddComponent<Text>("Text1", "EXW PESEI", "Arial", glm::vec3(255, 0, 0));
+	GetCurrentScene()->GetEntity("Entity 1").transform().Translate(glm::vec2(700, 100));
+
+	AssetManager::CreatePrefab("Prefab_Vortex", GetCurrentScene()->GetEntity("X"));
+	GetCurrentScene()->RemoveEntity("X");
 }
 
 static bool Default = false;
@@ -67,7 +79,6 @@ void Game::Update()
 
 	if (Input::IsKeyDown(Key::P))
 	{
-		ChangeScene((Default ? "Second Scene" : "Default Scene"));
-		Default = !Default;
+		Renderer::SetRender(false);
 	}
 }

@@ -108,6 +108,7 @@
     <ClInclude Include="src\Tools\AnimationController\Condition.h" />
     <ClInclude Include="src\Tools\AnimationController\Edge.h" />
     <ClInclude Include="src\Tools\AnimationController\Parameter.h" />
+    <ClInclude Include="src\Tools\AssetManager.h" />
     <ClInclude Include="src\Tools\Input.h" />
     <ClInclude Include="src\Tools\Math.h" />
     <ClInclude Include="src\Tools\Positioner.h" />
@@ -548,6 +549,7 @@
     <ClCompile Include="src\Tools\AnimationController\Condition.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Edge.cpp" />
     <ClCompile Include="src\Tools\AnimationController\Parameter.cpp" />
+    <ClCompile Include="src\Tools\AssetManager.cpp" />
     <ClCompile Include="src\Tools\Input.cpp" />
     <ClCompile Include="src\Tools\Positioner.cpp" />
     <ClCompile Include="src\Tools\Random.cpp" />

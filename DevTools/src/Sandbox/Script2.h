@@ -17,7 +17,7 @@ public:
 
 	void OnUpdate()
 	{
-		transform->SetRotation(transform->GetRotation() + 1);
+		// transform->SetRotation(transform->GetRotation() + 1);
 	}
 private:
 	Transform* transform;

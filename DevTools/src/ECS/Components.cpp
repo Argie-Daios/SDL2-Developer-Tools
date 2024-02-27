@@ -7,64 +7,33 @@
 #include <SDL_ttf.h>
 #include <iostream>
 
-namespace Utils {
-
-	static SDL_Texture* LoadFont(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color)
-	{
-		TTF_Font* font = TTF_OpenFont(font_path.c_str(), font_size);
-
-		if (!font)
-		{
-			std::cout << "FONT NULL" << std::endl;
-		}
-
-		auto text_surface = TTF_RenderText_Solid(font, label.c_str(), color);
-
-		if (!text_surface)
-		{
-			std::cout << "SURFACE NULL" << std::endl;
-		}
-
-		auto text_texture = Renderer::CreateTextureFromSurface(text_surface);
-
-		if (!text_texture)
-		{
-			std::cout << "TEXTURE NULL" << std::endl;
-		}
-
-		SDL_FreeSurface(text_surface);
-
-		return text_texture;
-	}
-}
-
-entt::entity Entity::recentEntity = entt::null;
+EntityStructure Entity::recentEntity;
 
 // Transform
 
 Transform::Transform()
-	: Component(Entity::recentEntity), position(0.0f, 0.0f), zValue(0.0f), rotation(0.0f), scale(1.0f, 1.0f), size(0.0f, 0.0f),
-	flip(SDL_FLIP_NONE)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), position(0.0f, 0.0f), zValue(0.0f),
+	rotation(0.0f), scale(1.0f, 1.0f), size(0.0f, 0.0f), flip(SDL_FLIP_NONE)
 {
 
 }
 
 Transform::Transform(const glm::vec2& position, float zValue, float rotation, const glm::vec2& scale)
-	: Component(Entity::recentEntity), position(position), zValue(zValue), rotation(rotation), scale(scale), size(0.0f, 0.0f),
-	flip(SDL_FLIP_NONE)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), position(position), zValue(zValue),
+	rotation(rotation), scale(scale), size(0.0f, 0.0f), flip(SDL_FLIP_NONE)
 {
 
 }
 
 void Transform::SetPosition(const glm::vec2& position)
 {
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	glm::vec2 prevPos = position;
 	this->position = position;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 
 		glm::vec2 newPos = ent.GetComponent<Transform>().position - prevPos;
 
@@ -74,24 +43,24 @@ void Transform::SetPosition(const glm::vec2& position)
 
 void Transform::Translate(const glm::vec2& translation)
 {
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	position += translation;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 		ent.GetComponent<Transform>().Translate(translation);
 	}
 }
 
 void Transform::SetZValue(float zValue)
 {
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	this->zValue = zValue;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 		auto& transformComponent = ent.transform();
 		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
 	}
@@ -101,12 +70,12 @@ void Transform::SetZValue(float zValue)
 
 void Transform::SetRotation(float rotation) 
 { 
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	this->rotation = rotation;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 		auto& transformComponent = ent.transform();
 		transformComponent.SetRotation(transformComponent.GetRotation() + this->rotation);
 	}
@@ -114,12 +83,12 @@ void Transform::SetRotation(float rotation)
 
 void Transform::SetScale(const glm::vec2& scale)
 { 
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	this->scale = scale;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 		auto& transformComponent = ent.transform();
 		transformComponent.SetScale(transformComponent.GetScale() + this->scale);
 	}
@@ -127,12 +96,12 @@ void Transform::SetScale(const glm::vec2& scale)
 
 void Transform::SetFlip(SDL_RendererFlip flip) 
 { 
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	this->flip = flip;
 
 	for (auto& child : en.GetChildren())
 	{
-		Entity ent = { child };
+		Entity ent = { child, m_Scene };
 		auto& transformComponent = ent.transform();
 		transformComponent.SetFlip(this->flip);
 	}
@@ -141,40 +110,30 @@ void Transform::SetFlip(SDL_RendererFlip flip)
 // Sprite Renderer
 
 SpriteRenderer::SpriteRenderer()
-	: Component(Entity::recentEntity), texture_path("-"), texture(nullptr), tintColor(255.0f, 255.0f, 255.0f), source{0,0,0,0}
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID("-"), tintColor(255.0f, 255.0f, 255.0f), source{0,0,0,0}
 {
 
 }
 
-SpriteRenderer::SpriteRenderer(const std::string& image_path)
-	: Component(Entity::recentEntity), texture_path(image_path)
+SpriteRenderer::SpriteRenderer(const std::string& textureID)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID(textureID)
 {
-	ChangeTexture(image_path);
+	
 }
 
-void SpriteRenderer::ChangeTexture(std::string image_path)
+void SpriteRenderer::ChangeTextureID(std::string textureID)
 {
-	SDL_Texture* temp = texture;
-	texture = Renderer::CreateTexture(image_path);
-	SDL_DestroyTexture(temp);
-	UpdateSprite();
-	texture_path = image_path;
-}
-
-void SpriteRenderer::ChangeTexture(SDL_Texture* texture)
-{
-	this->texture = texture;
+	Entity en = { m_Entity, m_Scene };
+	this->textureID = textureID;
 	UpdateSprite();
 }
 
 void SpriteRenderer::UpdateSprite()
 {
-	if (!texture) return;
-
-	int texWidth, texHeight;
-	Entity en = { m_Entity };
-
-	SDL_QueryTexture(texture, nullptr, nullptr, &texWidth, &texHeight);
+	Entity en = { m_Entity, m_Scene };
+	Texture texture = AssetManager::GetTexture(textureID);
+	int texWidth = texture.width;
+	int texHeight = texture.height;
 
 	source = SDL_Rect{ 0, 0, texWidth, texHeight };
 	en.transform().SetSize(glm::vec2(texWidth, texHeight));
@@ -183,29 +142,29 @@ void SpriteRenderer::UpdateSprite()
 // Animation
 
 Animation::Animation()
-	: Component(Entity::recentEntity), texture_path("-"), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID("-"), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0), defaultRow(0)
 {
 
 }
 
-Animation::Animation(const std::string& image_path, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
-	: Component(Entity::recentEntity), texture_path(image_path), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
-	totalRows(totalRows), delay(delay), loop(loop), timeElapsed(0.0f)
+Animation::Animation(const std::string& textureID, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID(textureID), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
+	totalRows(totalRows), delay(delay), loop(loop), defaultRow(currentRow), timeElapsed(0.0f)
 {
-	Entity e = { m_Entity };
+	Entity e = { m_Entity, m_Scene };
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
 
-	spriteRenderer.ChangeTexture(image_path);
+	spriteRenderer.ChangeTextureID(textureID);
 	texWidth = spriteRenderer.GetSource().w;
 	texHeight = spriteRenderer.GetSource().h;
 	transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
 }
 
 Animation::Animation(const Animation& animation)
+	: Component(animation.m_Entity, animation.m_Scene)
 {
-	m_Entity = animation.m_Entity;
-	texture_path = animation.texture_path;
+	textureID = animation.textureID;
 	currentFrames = animation.currentFrames;
 	currentRow = animation.currentRow;
 	totalFrames = animation.totalFrames;
@@ -219,19 +178,17 @@ Animation::Animation(const Animation& animation)
 
 void Animation::Animate()
 {
-	if (texture_path.find("Attack") != std::string::npos)
-		std::cout << "Time Elapsed : " << timeElapsed << " Current Index : " << CurrentFrameIndex() << std::endl;
 	if (!loop && isComplete()) return;
 
-	Entity e = { m_Entity };
+	Entity e = { m_Entity, m_Scene };
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.GetComponent<SpriteRenderer>();
 
 	int frameIndex;
 
-	if (texture_path != spriteRenderer.GetTexturePath())
+	if (textureID != spriteRenderer.GetTextureID())
 	{
-		spriteRenderer.ChangeTexture(texture_path);
+		spriteRenderer.ChangeTextureID(textureID);
 		texWidth = spriteRenderer.GetSource().w;
 		texHeight = spriteRenderer.GetSource().h;
 		transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
@@ -289,13 +246,13 @@ int Animation::CurrentFrameIndex()
 // Animator
 
 Animator::Animator()
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
 {
 	
 }
 
 Animator::Animator(const std::initializer_list<AnimationNode>& animations)
-	: Component(Entity::recentEntity)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
 {
 	for (auto element : animations)
 	{
@@ -413,75 +370,85 @@ void Animator::RemoveConditionOffEdge(const std::string& source, const std::stri
 // Text
 
 Text::Text()
-	: Component(Entity::recentEntity), label("Text"), font_path("assets/fonts/arial.ttf"), font_size(10),
-	color(SDL_Color{ 255,255,255 })
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textID("-")
 {
+	
+}
+
+Text::Text(const std::string& label, const std::string& font, const glm::vec3& color)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+{
+	std::string textID = randomStringGenerator(15);
+	AssetManager::LoadText(textID, label, font, color);
 	UpdateMesh();
 }
 
-Text::Text(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color)
-	: Component(Entity::recentEntity), label(label), font_path(font_path), font_size(font_size), color(color)
+Text::Text(const std::string& textID, const std::string& label, const std::string& font, const glm::vec3& color)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textID(textID)
 {
+	AssetManager::LoadText(textID, label, font, color);
 	UpdateMesh();
 }
 
-Text::Text(const Text& text)
+std::string Text::GetLabel() const
 {
-	m_Entity = text.m_Entity;
-	label = text.label;
-	font_path = text.font_path;
-	font_size = text.font_size;
-	color = text.color;
+	return AssetManager::GetText(textID).label;
+}
 
-	UpdateMesh();
+std::string Text::GetFont() const
+{
+	return AssetManager::GetText(textID).font;
+}
+
+std::string Text::GetFontPath() const
+{
+	TextProperties textProperties = AssetManager::GetText(textID);
+	return AssetManager::GetFont(textProperties.font).fontpath;
+}
+
+int Text::GetFontSize() const
+{
+	TextProperties textProperties = AssetManager::GetText(textID);
+	return AssetManager::GetFont(textProperties.font).font_size;
+}
+
+glm::vec3 Text::GetColor() const
+{
+	return AssetManager::GetText(textID).color;
 }
 
 void Text::ChangeLabel(const std::string& label)
 {
-	this->label = label;
-	UpdateMesh();
+	if(AssetManager::ChangeTextLabel(textID, label))
+		UpdateMesh();
 }
 
-void Text::ChangeFontPath(const std::string& font_path)
+void Text::ChangeFont(const std::string& font)
 {
-	this->font_path = font_path;
-	UpdateMesh();
+	if(AssetManager::ChangeTextFont(textID, font))
+		UpdateMesh();
 }
 
-void Text::ChangeFontSize(int font_size)
+void Text::ChangeColor(const glm::vec3& color)
 {
-	this->font_size = font_size;
-	UpdateMesh();
-}
-
-void Text::ChangeColor(const SDL_Color& color)
-{
-	this->color = color;
-	UpdateMesh();
+	if(AssetManager::ChangeTextColor(textID, color))
+		UpdateMesh();
 }
 
 void Text::UpdateMesh()
 {
-	Entity e = { m_Entity };
-	auto& transformComponent = e.transform();
-	auto& spriteComponent = e.AddIfNotExistsOrGet<SpriteRenderer>();
-
-	int texWidth, texHeight;
-	SDL_Texture* texture = Utils::LoadFont(label, font_path, font_size, color);
-
-	SDL_QueryTexture(texture, nullptr, nullptr, &texWidth, &texHeight);
-
-	spriteComponent.ChangeTexture(texture);
-	spriteComponent.SetSource(SDL_Rect{ 0, 0, texWidth, texHeight });
-	transformComponent.SetSize(glm::vec2(texWidth, texHeight));
+	Entity e = { m_Entity, m_Scene };
+	Texture texture = AssetManager::GetTexture(textID);
+	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
+	spriteRenderer.ChangeTextureID(textID);
 }
 
 // Collider
 
 Collider::Collider()
-	: Component(Entity::recentEntity), offset(glm::vec2(0.0f, 0.0f)), size(glm::vec2(0.0f, 0.0f)), trigger(false), collides(false)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), offset(glm::vec2(0.0f, 0.0f)), size(glm::vec2(0.0f, 0.0f)), trigger(false), collides(false)
 {
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	auto& transformComponent = en.transform();
 
 	size.x = transformComponent.GetSize().x * transformComponent.GetScale().x;
@@ -489,9 +456,9 @@ Collider::Collider()
 }
 
 Collider::Collider(const glm::vec2& offset, bool trigger)
-	: Component(Entity::recentEntity), offset(offset), size(glm::vec2(0.0f, 0.0f)), trigger(trigger), collides(false)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), offset(offset), size(glm::vec2(0.0f, 0.0f)), trigger(trigger), collides(false)
 {
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	auto& transformComponent = en.transform();
 
 	size.x = transformComponent.GetSize().x * transformComponent.GetScale().x;
@@ -500,7 +467,7 @@ Collider::Collider(const glm::vec2& offset, bool trigger)
 
 void Collider::SetSize(const glm::vec2& size)
 { 
-	Entity en = { m_Entity };
+	Entity en = { m_Entity, m_Scene };
 	auto& transformComponent = en.transform();
 
 	this->size.x = size.x * transformComponent.GetScale().x;

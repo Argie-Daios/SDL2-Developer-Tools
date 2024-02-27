@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Tools/AnimationController/AnimationController.h"
+#include "Tools/AssetManager.h"
+#include "Core/Scene.h"
 
 #include <SDL.h>
 #include <string>
@@ -14,12 +16,29 @@ class Entity;
 struct Component
 {
 public:
-	Component(entt::entity entity = entt::null) { m_Entity = entity; }
+	Component(entt::entity entity, Scene* scene) { m_Entity = entity; m_Scene = scene; }
 
 	void SetEntity(entt::entity entity) { m_Entity = entity; }
 protected:
 	entt::entity m_Entity;
+	Scene* m_Scene;
 	friend class Entity;
+};
+
+struct Children
+{
+	Children() {};
+	Children(const Children& childrenComponent)
+	{
+		children = childrenComponent.children;
+	}
+	std::list<entt::entity> children;
+};
+
+struct Information
+{
+	std::string name;
+	std::vector<std::string> tags;
 };
 
 struct Transform : public Component
@@ -58,25 +77,21 @@ struct SpriteRenderer : public Component
 {
 public:
 	SpriteRenderer();
-	SpriteRenderer(const std::string& image_path);
+	SpriteRenderer(const std::string& textureID);
 	SpriteRenderer(const SpriteRenderer&) = default;
-	~SpriteRenderer() { SDL_DestroyTexture(texture); }
 
-	void ChangeTexture(std::string image_path);
-	void ChangeTexture(SDL_Texture* texture);
+	void ChangeTextureID(std::string textureID);
 	void SetTintColor(glm::vec3 color) { tintColor = color; }
 	void SetSource(SDL_Rect src) { source = src; }
 
-	SDL_Texture* GetTexture() const { return texture; }
-	std::string GetTexturePath() const { return texture_path; }
+	std::string GetTextureID() const { return textureID; }
 	glm::vec3 GetColor() const { return tintColor; }
 	SDL_Color GetSDLColor() const { return SDL_Color{ (unsigned char)(int)tintColor.r, (unsigned char)(int)tintColor.g, (unsigned char)(int)tintColor.b }; }
 	SDL_Rect GetSource() const { return source; }
 private:
 	void UpdateSprite();
 private:
-	SDL_Texture* texture = nullptr;
-	std::string texture_path;
+	std::string textureID;
 	glm::vec3 tintColor = glm::ivec3(255.0f, 255.0f, 255.0f);
 	SDL_Rect source;
 };
@@ -85,16 +100,16 @@ struct Animation : public Component
 {
 public:
 	Animation();
-	Animation(const std::string& image_path, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);
-	Animation(const Animation&);
+	Animation(const std::string& textureID, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);	Animation(const Animation&);
 
 	void Animate();
 
 	bool isComplete();
 
-	std::string GetTexturePath() const { return texture_path; }
+	std::string GetTextureID() const { return textureID; }
 	int GetCurrentFrames() const { return currentFrames; }
 	int GetCurrentRow() const { return currentRow; }
+	int GetDefaultRow() const { return defaultRow; }
 	int GetTotalFrames() const { return totalFrames; }
 	int GetTotalRows() const { return totalRows; }
 	float GetDelay() const { return delay; }
@@ -110,7 +125,7 @@ private:
 	void CurrentFrame(int& index);
 	int CurrentFrameIndex();
 private:
-	std::string texture_path;
+	std::string textureID;
 	int currentFrames = 0;
 	int currentRow = 0;
 	int totalFrames = 0;
@@ -122,6 +137,7 @@ private:
 
 	int texWidth = 0;
 	int texHeight = 0;
+	int defaultRow = 0;
 
 	friend struct Animator;
 	friend class AnimationController;
@@ -170,25 +186,23 @@ struct Text : public Component
 {
 public:
 	Text();
-	Text(const std::string& label, const std::string& font_path, int font_size, const SDL_Color& color);
-	Text(const Text& text);
+	Text(const std::string& label, const std::string& font, const glm::vec3& color);
+	Text(const std::string& textID, const std::string& label, const std::string& font, const glm::vec3& color);
+	Text(const Text& text) = default;
 
-	std::string GetLabel() const { return label; }
-	std::string GetFontPath() const { return font_path; }
-	int GetFontSize() const { return font_size; }
-	SDL_Color GetColor() const { return color; }
+	std::string GetLabel() const;
+	std::string GetFont() const;
+	std::string GetFontPath() const;
+	int GetFontSize() const;
+	glm::vec3 GetColor() const;
 	
 	void ChangeLabel(const std::string& label);
-	void ChangeFontPath(const std::string& font_path);
-	void ChangeFontSize(int font_size);
-	void ChangeColor(const SDL_Color& color);
+	void ChangeFont(const std::string& font);
+	void ChangeColor(const glm::vec3& color);
 private:
 	void UpdateMesh();
 private:
-	std::string label;
-	std::string font_path;
-	int font_size;
-	SDL_Color color;
+	std::string textID;
 };
 
 class ControlledEntity;
