@@ -8,6 +8,13 @@ Edge::Edge(std::string destinationName, bool hasExitTime)
 
 }
 
+Edge::Edge(const Edge& edge)
+{
+	m_DestinationAnimationName = edge.m_DestinationAnimationName;
+	m_Conditions = edge.m_Conditions;
+	hasExitTime = edge.hasExitTime;
+}
+
 void Edge::AddCondition(Condition condition)
 {
 	m_Conditions.push_back(condition);

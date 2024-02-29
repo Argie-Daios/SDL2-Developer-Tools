@@ -23,6 +23,7 @@ public:
 		transform = &GetComponent<Transform>();
 		animator = &GetComponent<Animator>();
 		vortexPrefab = AssetManager::Prefab("Prefab_Vortex");
+		wizardPrefab = AssetManager::Prefab("Prefab_Wizard");
 	}
 
 	void OnUpdate()
@@ -54,6 +55,10 @@ public:
 		if (Input::IsKeyDown(Key::K) && !Attacking)
 		{
 			CoroutineManager::StartCoroutine(Attack(ABILITY::THIRD));
+		}
+		if (Input::IsKeyDown(Key::L) && !Attacking)
+		{
+			Entity ent = Instantiate(wizardPrefab, transform->GetPosition() + glm::vec2(500, 200));
 		}
 	}
 
@@ -161,5 +166,6 @@ private:
 	Transform* transform;
 	Animator* animator;
 	Entity vortexPrefab;
+	Entity wizardPrefab;
 	bool Attacking = false;
 };

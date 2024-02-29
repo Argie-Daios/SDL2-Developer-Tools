@@ -63,7 +63,8 @@ class Condition
 {
 public:
 	Condition(Parameter& parameter, Operation::OperationFunc operation, void* value, Type valueType);
-
+	~Condition();
+		
 	Parameter* GetParameter() { return m_Parameter; }
 
 	bool CheckCondition();
@@ -72,4 +73,6 @@ private:
 	Operation::OperationFunc m_Operation;
 	void* m_Value;
 	Type m_ValueType;
+
+	friend class AnimationController;
 };

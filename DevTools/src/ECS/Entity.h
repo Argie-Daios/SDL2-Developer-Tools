@@ -3,8 +3,6 @@
 #include "Core/Application.h"
 #include "Components.h"
 
-#define REGISTRY Application::GetCurrentScene()->m_Registry
-
 struct EntityStructure
 {
 	entt::entity handle = entt::null;
@@ -94,6 +92,7 @@ public:
 		CopyTransform(*this, ent);
 		CopySpriteRenderer(*this, ent);
 		CopyAnimation(*this, ent);
+		CopyAnimator(*this, ent);
 		CopyText(*this, ent);
 		CopyBehaviour(*this, ent);
 		CopyCollider(*this, ent);
@@ -112,6 +111,7 @@ public:
 		CopyTransform(entity, ent);
 		CopySpriteRenderer(entity, ent);
 		CopyAnimation(entity, ent);
+		CopyAnimator(entity, ent);
 		CopyText(entity, ent);
 		CopyBehaviour(entity, ent);
 		CopyCollider(entity, ent);
@@ -239,6 +239,10 @@ private:
 	static void CopyAnimator(Entity entitySrc, Entity entityDst)
 	{
 		// TODO
+		if (!entitySrc.HasComponent<Animator>()) return;
+
+		auto& animatorComponent = entityDst.AddComponent<Animator>();
+		animatorComponent.Copy(entitySrc.GetComponent<Animator>());
 	}
 
 	static void CopyText(Entity entitySrc, Entity entityDst)
@@ -280,4 +284,6 @@ private:
 
 	entt::entity m_EntityHandle = entt::null;
 	Scene* m_Scene = nullptr;
+
+	friend class AnimationController;
 };

@@ -88,6 +88,11 @@ Condition::Condition(Parameter& parameter, Operation::OperationFunc operation, v
 	GAME_ASSERT(m_Parameter->GetType() == m_ValueType && m_ValueType == OperationFuncToType(m_Operation), "Condition Type Differs");
 }
 
+Condition::~Condition()
+{
+	
+}
+
 bool Condition::CheckCondition()
 {
 	switch (m_ValueType)

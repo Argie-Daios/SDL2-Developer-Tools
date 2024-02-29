@@ -9,6 +9,7 @@
 #include <memory>
 
 struct Animation;
+class Entity;
 
 using AnimationNode = std::pair < std::string, Ref<Animation>>;
 
@@ -16,8 +17,7 @@ class AnimationController
 {
 public:
 	AnimationController();
-	AnimationController(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations);
-	AnimationController(const AnimationController&) = default;
+	void Copy(const AnimationController& animationController, const Entity& entity);
 
 	void Update();
 
@@ -52,6 +52,7 @@ private:
 	std::string CheckName(std::string name, int num = 1);
 	bool DoesLinkExists(const std::string& source, const std::string& destination);
 	int FindLink(const std::string& source, const std::string& destination);
+	static std::string FindParameter(const AnimationController& animationController, Parameter* parameter);
 private:
 	std::string m_Entry;
 	std::string m_Current;

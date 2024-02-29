@@ -33,7 +33,7 @@ struct Children
 		children = childrenComponent.children;
 	}
 	std::list<entt::entity> children;
-};
+}; // Need to rewrite and also handle it when I create prefab
 
 struct Information
 {
@@ -46,7 +46,7 @@ struct Transform : public Component
 public:
 	Transform();
 	Transform(const glm::vec2& position, float zValue = 0.0f, float rotation = 0.0f, const glm::vec2& scale = glm::vec2(1.0f, 1.0f));
-	Transform(const Transform&) = default;
+	Transform(const Transform&);
 
 	void SetPosition(const glm::vec2& position);
 	void Translate(const glm::vec2& translation);
@@ -78,7 +78,7 @@ struct SpriteRenderer : public Component
 public:
 	SpriteRenderer();
 	SpriteRenderer(const std::string& textureID);
-	SpriteRenderer(const SpriteRenderer&) = default;
+	SpriteRenderer(const SpriteRenderer&);
 
 	void ChangeTextureID(std::string textureID);
 	void SetTintColor(glm::vec3 color) { tintColor = color; }
@@ -100,7 +100,8 @@ struct Animation : public Component
 {
 public:
 	Animation();
-	Animation(const std::string& textureID, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);	Animation(const Animation&);
+	Animation(const std::string& textureID, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);
+	Animation(const Animation&);
 
 	void Animate();
 
@@ -148,7 +149,8 @@ struct Animator : public Component
 public:
 	Animator();
 	Animator(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations);
-	Animator(const Animator&) = default;
+	Animator(const Animator&);
+	void Copy(const Animator& animator);
 
 	void Update();
 
@@ -188,7 +190,7 @@ public:
 	Text();
 	Text(const std::string& label, const std::string& font, const glm::vec3& color);
 	Text(const std::string& textID, const std::string& label, const std::string& font, const glm::vec3& color);
-	Text(const Text& text) = default;
+	Text(const Text& text);
 
 	std::string GetLabel() const;
 	std::string GetFont() const;
@@ -208,6 +210,9 @@ private:
 class ControlledEntity;
 struct Behaviour
 {
+	Behaviour() = default;
+	Behaviour(const Behaviour& behvaiour);
+
 	ControlledEntity* Instance = nullptr;
 
 	ControlledEntity* (*InstantiateScript)();
@@ -226,7 +231,7 @@ struct Collider : public Component
 public:
 	Collider();
 	Collider(const glm::vec2& offset, bool trigger = false);
-	Collider(const Collider&) = default;
+	Collider(const Collider&);
 
 	void SetOffset(const glm::vec2& offset) { this->offset = offset; }
 	void SetSize(const glm::vec2& size);

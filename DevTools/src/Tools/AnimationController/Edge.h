@@ -11,6 +11,7 @@ class Edge
 public:
 	Edge() = default;
 	Edge(std::string destinationName, bool hasExitTime = true);
+	Edge(const Edge& edge);
 
 	void AddCondition(Condition condition);
 	void RemoveCondition(Parameter& parameter);

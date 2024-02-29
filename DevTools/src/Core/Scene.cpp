@@ -20,16 +20,9 @@ Entity Scene::AddEntity(const std::string& name)
 	informationComponent.name = name;
 	ent.AddComponent<Children>();
 	ent.AddComponent<Transform>();
+	//m_Registry.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 
 	return ent;
-}
-
-void Scene::RemoveEntity(const std::string& name)
-{
-	entt::entity entity = FindEntity(name);
-	GAME_ASSERT(entity != entt::null, "Entity does not exist");
-
-	m_Registry.destroy(entity);
 }
 
 Entity Scene::Instantiate(Entity object, const glm::vec2& position)
@@ -38,6 +31,14 @@ Entity Scene::Instantiate(Entity object, const glm::vec2& position)
 	ent.transform().SetPosition(position);
 
 	return ent;
+}
+
+void Scene::DeleteEntity(const std::string& name)
+{
+	entt::entity entity = FindEntity(name);
+	GAME_ASSERT(entity != entt::null, "Entity does not exist");
+
+	m_Registry.destroy(entity);
 }
 
 void Scene::DeleteEntity(Entity entity)

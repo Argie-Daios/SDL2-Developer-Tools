@@ -17,8 +17,6 @@ Game::Game()
 	AssetManager::LoadTexture("Vortex", "assets/textures/Effects/Vortex.png");
 	AssetManager::LoadFont("Arial", "assets/fonts/arial.ttf", 50);
 
-	AddScene("Second Scene");
-
 	GetCurrentScene()->AddEntity("Wizard");
 
 	auto& transformComponent = GetCurrentScene()->GetEntity("Wizard").GetComponent<Transform>();
@@ -56,8 +54,9 @@ Game::Game()
 	GetCurrentScene()->GetEntity("Wizard").AddComponent<Behaviour>().Bind<Wizard>();
 
 	GetCurrentScene()->AddEntity("X");
-
 	GetCurrentScene()->GetEntity("X").AddComponent<Behaviour>().Bind<Rotated>();
+	//GetCurrentScene()->GetEntity("X").transform().Translate(glm::vec2(650, 100));
+	GetCurrentScene()->GetEntity("X").transform().SetZValue(5.0f);
 
 	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("Vortex", 48, 0, 9, 7, 20);
 
@@ -65,11 +64,12 @@ Game::Game()
 	GetCurrentScene()->GetEntity("Entity 1").AddComponent<Text>("Text1", "EXW PESEI", "Arial", glm::vec3(255, 0, 0));
 	GetCurrentScene()->GetEntity("Entity 1").transform().Translate(glm::vec2(700, 100));
 
-	AssetManager::CreatePrefab("Prefab_Vortex", GetCurrentScene()->GetEntity("X"));
-	GetCurrentScene()->RemoveEntity("X");
-}
+	//GetCurrentScene()->GetEntity("Wizard").AddChild(GetCurrentScene()->GetCamera().handle());
 
-static bool Default = false;
+	AssetManager::CreatePrefab("Prefab_Wizard", GetCurrentScene()->GetEntity("Wizard"));
+	AssetManager::CreatePrefab("Prefab_Vortex", GetCurrentScene()->GetEntity("X"));
+	GetCurrentScene()->DeleteEntity("X");
+}
 
 void Game::Update()
 {

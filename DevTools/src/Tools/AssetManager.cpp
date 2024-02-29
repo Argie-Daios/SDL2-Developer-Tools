@@ -139,6 +139,14 @@ Entity AssetManager::Prefab(const std::string& name)
 	return s_Prefabs[name];
 }
 
+void AssetManager::Clear()
+{
+	ClearTextures();
+	ClearFonts();
+	ClearText();
+	ClearPrefabs();
+}
+
 bool AssetManager::isAlreadyIn(const std::string& name, const ASSET_TYPE& type)
 {
 	switch (type)
@@ -173,4 +181,24 @@ SDL_Texture* AssetManager::GenerateTextTexture(const std::string& label, const s
 
 	SDL_FreeSurface(text_surface);
 	return text_texture;
+}
+
+void AssetManager::ClearTextures()
+{
+	
+}
+
+void AssetManager::ClearFonts()
+{
+
+}
+
+void AssetManager::ClearText()
+{
+
+}
+
+void AssetManager::ClearPrefabs()
+{
+
 }

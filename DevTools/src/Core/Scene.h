@@ -15,8 +15,8 @@ public:
 	Scene(const Scene&);
 
 	Entity AddEntity(const std::string& name);
-	void RemoveEntity(const std::string& name);
 	Entity Instantiate(Entity object, const glm::vec2& position);
+	void DeleteEntity(const std::string& name);
 	void DeleteEntity(Entity entity);
 
 	Entity GetCamera();

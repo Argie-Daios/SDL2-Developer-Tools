@@ -59,10 +59,18 @@ public:
 
 	static void CreatePrefab(const std::string& name, Entity entity);
 	static Entity Prefab(const std::string& name);
+
+	// TODO : MAKE CLEAR FUNCTION
+	static void Clear();
 private:
 	static bool isAlreadyIn(const std::string& name, const ASSET_TYPE& type);
 	static void ChangeTexture(const std::string& name, SDL_Texture* texture, int width, int height);
 	static SDL_Texture* GenerateTextTexture(const std::string& label, const std::string& font, const glm::vec3& color);
+
+	static void ClearTextures();
+	static void ClearFonts();
+	static void ClearText();
+	static void ClearPrefabs();
 private:
 	static std::unordered_map<std::string, Texture> s_Textures;
 	static std::unordered_map<std::string, Font> s_Fonts;

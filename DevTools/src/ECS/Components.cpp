@@ -19,10 +19,21 @@ Transform::Transform()
 }
 
 Transform::Transform(const glm::vec2& position, float zValue, float rotation, const glm::vec2& scale)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), position(position), zValue(zValue),
-	rotation(rotation), scale(scale), size(0.0f, 0.0f), flip(SDL_FLIP_NONE)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), position(position), rotation(rotation),
+	scale(scale), size(0.0f, 0.0f), flip(SDL_FLIP_NONE)
 {
+	SetZValue(zValue);
+}
 
+Transform::Transform(const Transform& transform)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+{
+	position = transform.position;
+	size = transform.size;
+	zValue = transform.zValue;
+	rotation = transform.rotation;
+	scale = transform.scale;
+	flip = transform.flip;
 }
 
 void Transform::SetPosition(const glm::vec2& position)
@@ -65,7 +76,7 @@ void Transform::SetZValue(float zValue)
 		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
 	}
 
-	REGISTRY.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
+	//m_Scene->m_Registry.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
 }
 
 void Transform::SetRotation(float rotation) 
@@ -121,6 +132,14 @@ SpriteRenderer::SpriteRenderer(const std::string& textureID)
 	
 }
 
+SpriteRenderer::SpriteRenderer(const SpriteRenderer& spriteRenderer)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID(textureID)
+{
+	textureID = spriteRenderer.textureID;
+	tintColor = spriteRenderer.tintColor;
+	source = spriteRenderer.source;
+}
+
 void SpriteRenderer::ChangeTextureID(std::string textureID)
 {
 	Entity en = { m_Entity, m_Scene };
@@ -162,11 +181,11 @@ Animation::Animation(const std::string& textureID, int currentFrames, int curren
 }
 
 Animation::Animation(const Animation& animation)
-	: Component(animation.m_Entity, animation.m_Scene)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
 {
 	textureID = animation.textureID;
 	currentFrames = animation.currentFrames;
-	currentRow = animation.currentRow;
+	currentRow = animation.defaultRow;
 	totalFrames = animation.totalFrames;
 	totalRows = animation.totalRows;
 	delay = animation.delay;
@@ -174,6 +193,7 @@ Animation::Animation(const Animation& animation)
 	timeElapsed = 0.0f;
 	texWidth = animation.texWidth;
 	texHeight = animation.texHeight;
+	defaultRow = animation.defaultRow;
 }
 
 void Animation::Animate()
@@ -256,9 +276,20 @@ Animator::Animator(const std::initializer_list<AnimationNode>& animations)
 {
 	for (auto element : animations)
 	{
-		element.second->m_Entity = m_Entity;
-		controller.AddAnimation(element.first, element.second);
+		AddAnimation(element.first, element.second);
 	}
+}
+
+Animator::Animator(const Animator& animator)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+{
+	controller = animator.controller;
+}
+
+void Animator::Copy(const Animator& animator)
+{
+	std::cout << "EXDE" << std::endl;
+	controller.Copy(animator.controller, Entity{ m_Entity, m_Scene });
 }
 
 void Animator::Update()
@@ -269,6 +300,8 @@ void Animator::Update()
 
 void Animator::AddAnimation(std::string name, Ref<Animation> animation)
 {
+	animation->m_Entity = m_Entity;
+	animation->m_Scene = m_Scene;
 	controller.AddAnimation(name, animation);
 }
 
@@ -390,6 +423,13 @@ Text::Text(const std::string& textID, const std::string& label, const std::strin
 	UpdateMesh();
 }
 
+Text::Text(const Text& text)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+{
+	textID = text.textID;
+	UpdateMesh();
+}
+
 std::string Text::GetLabel() const
 {
 	return AssetManager::GetText(textID).label;
@@ -443,6 +483,12 @@ void Text::UpdateMesh()
 	spriteRenderer.ChangeTextureID(textID);
 }
 
+// Behaviour
+Behaviour::Behaviour(const Behaviour& behaviour)
+{
+
+}
+
 // Collider
 
 Collider::Collider()
@@ -463,6 +509,15 @@ Collider::Collider(const glm::vec2& offset, bool trigger)
 
 	size.x = transformComponent.GetSize().x * transformComponent.GetScale().x;
 	size.y = transformComponent.GetSize().y * transformComponent.GetScale().y;
+}
+
+Collider::Collider(const Collider& collider)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+{
+	offset = collider.offset;
+	size = collider.size;
+	trigger = collider.trigger;
+	collides = collider.collides;
 }
 
 void Collider::SetSize(const glm::vec2& size)

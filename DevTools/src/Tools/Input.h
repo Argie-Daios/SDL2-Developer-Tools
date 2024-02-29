@@ -64,6 +64,7 @@ public:
 	static bool IsMouseButtonPressed(Mouse button);
 	static bool IsMouseButtonUp(Mouse button);
 	static glm::ivec2 GetMousePosition();
+	static bool DoesMouseHover(const SDL_Rect& rect);
 
 	static float GetTimePressed();
 	static SDL_Event& Event() { return s_Event; }

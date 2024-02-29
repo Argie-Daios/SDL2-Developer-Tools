@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "Tools/Random.h"
+#include "Tools/Enums.h"
 
 #define GAME_ASSERT(x, y) { if(!(x)) { std::cout << y << std::endl; __debugbreak(); } }
 
@@ -44,4 +45,74 @@ constexpr std::string randomStringGenerator(int size = 0)
 	}
 	
 	return str;
+}
+
+constexpr Type StringToType(std::string type)
+{
+	if (type == "int") return Type::INT;
+	if (type == "float") return Type::FLOAT;
+	if (type == "bool") return Type::BOOL;
+
+	GAME_ASSERT(false, "Wrong Type String");
+	return Type();
+}
+
+constexpr std::string TypeToString(Type type)
+{
+	switch (type)
+	{
+	case Type::INT: return "int";
+	case Type::FLOAT: return "float";
+	case Type::BOOL: return "bool";
+	}
+
+	GAME_ASSERT(false, "Wrong Type");
+	return std::string();
+}
+
+template<typename T>
+constexpr void* ValueToVoidPtr(T value)
+{
+	T* val = (T*)malloc(sizeof(T));
+
+	GAME_ASSERT(val, "Failed Memory Allocation");
+
+	*val = value;
+
+	return (void*)val;
+}
+
+constexpr void* CopyPtr(void* value, Type type)
+{
+	switch (type)
+	{
+	case Type::INT:
+	{
+		return ValueToVoidPtr<int>(*((int*)value));
+	}
+	case Type::FLOAT:
+	{
+		return ValueToVoidPtr<float>(*((float*)value));
+	}
+	case Type::BOOL:
+	{
+		return ValueToVoidPtr<bool>(*((bool*)value));
+	}
+	}
+
+	GAME_ASSERT(false, "Wrong Type");
+	return 0;
+}
+
+constexpr size_t SizeOf(Type type)
+{
+	switch (type)
+	{
+	case Type::INT: return sizeof(int);
+	case Type::FLOAT: return sizeof(float);
+	case Type::BOOL: return sizeof(bool);
+	}
+
+	GAME_ASSERT(false, "Wrong Type");
+	return 0;
 }

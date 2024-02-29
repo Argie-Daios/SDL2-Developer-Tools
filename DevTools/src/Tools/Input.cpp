@@ -118,6 +118,13 @@ glm::ivec2 Input::GetMousePosition()
 	return glm::ivec2(mouseX, mouseY);
 }
 
+bool Input::DoesMouseHover(const SDL_Rect& rect)
+{
+	glm::ivec2 mousePos = GetMousePosition();
+
+	return rect.x + rect.w > mousePos.x && rect.y + rect.h > mousePos.y && mousePos.x + 1 > rect.x && mousePos.y + 1 > rect.y;
+}
+
 float Input::GetTimePressed()
 {
 	return s_PressedTime;

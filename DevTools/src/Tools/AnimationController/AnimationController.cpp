@@ -1,6 +1,6 @@
 #include "AnimationController.h"
 
-#include "ECS/Components.h"
+#include "ECS/Entity.h"
 
 #include <algorithm>
 
@@ -9,24 +9,37 @@ AnimationController::AnimationController()
 	
 }
 
-AnimationController::AnimationController(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations)
+void AnimationController::Copy(const AnimationController& animationController, const Entity& entity)
 {
-	for (auto element : animations)
+	m_Entry = m_Current = animationController.m_Entry;
+
+	for (auto& elem : animationController.m_Animations)
 	{
-		AddAnimation(element.first, element.second);
+		m_Animations.emplace(elem.first, CreateRef<Animation>(*elem.second));
+		m_Animations[elem.first]->m_Entity = entity.m_EntityHandle;
+		m_Animations[elem.first]->m_Scene = entity.m_Scene;
 	}
 
-	if (!m_Animations.empty())
+	for (auto& elem : animationController.m_Parameters)
 	{
-		m_Entry = m_Animations.begin()->first;
-		m_Current = m_Entry;
+		m_Parameters.emplace(elem.first, CreateRef<Parameter>(elem.second->m_Type, CopyPtr(elem.second->m_Value, elem.second->m_Type)));
+	}
+
+	for (auto& elem : animationController.m_Links)
+	{
+		m_Links.emplace(elem.first, std::vector<Edge>());
+		for (auto& edge : elem.second)
+		{
+			m_Links[elem.first].emplace_back(edge.m_DestinationAnimationName, edge.hasExitTime);
+			for (auto& cond : edge.m_Conditions)
+			{
+				std::string parameterName = FindParameter(animationController, cond.m_Parameter);
+				m_Links[elem.first].back().m_Conditions.emplace_back(*m_Parameters[parameterName], cond.m_Operation,
+					CopyPtr(cond.m_Value, cond.m_ValueType), cond.m_ValueType);
+			}
+		}
 	}
 }
-
-//AnimationController::AnimationController(const AnimationController& animationController)
-//{
-//
-//}
 
 void AnimationController::Update()
 {
@@ -348,4 +361,18 @@ int AnimationController::FindLink(const std::string& source, const std::string& 
 	}
 
 	return -1;
+}
+
+std::string AnimationController::FindParameter(const AnimationController& animationController, Parameter* parameter)
+{
+	for (auto& param : animationController.m_Parameters)
+	{
+		if (param.second.get() == parameter)
+		{
+			return param.first;
+		}
+	}
+
+	GAME_ASSERT(false, "There is no such parameter!!");
+	return "";
 }

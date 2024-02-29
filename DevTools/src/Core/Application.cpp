@@ -20,7 +20,6 @@ Application::Application()
 
 	AddScene("Default Scene");
 	ChangeScene("Default Scene");
-	
 }
 
 Application::~Application()
