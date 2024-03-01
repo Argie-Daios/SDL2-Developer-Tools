@@ -100,45 +100,34 @@ struct Animation : public Component
 {
 public:
 	Animation();
-	Animation(const std::string& textureID, int currentFrames = 0, int currentRow = 0, int totalFrames = 0, int totalRows = 0, float delay = 100.0f, bool loop = true);
-	Animation(const Animation&);
+	Animation(const std::string& animationID, float delay = 100.0f, bool loop = true);
+	Animation(const Animation&) = default;
 
 	void Animate();
 
 	bool isComplete();
 
-	std::string GetTextureID() const { return textureID; }
-	int GetCurrentFrames() const { return currentFrames; }
-	int GetCurrentRow() const { return currentRow; }
-	int GetDefaultRow() const { return defaultRow; }
-	int GetTotalFrames() const { return totalFrames; }
-	int GetTotalRows() const { return totalRows; }
+	
+	std::string GetAnimationID() const { return animationID; }
+	int GetTotalFrames() const { return AssetManager::GetAnimation(animationID).totalFrames; }
+	int GetTotalFramesPerRow() const { return AssetManager::GetAnimation(animationID).totalFramesPerRow; }
+	int GetTotalRows() const { return AssetManager::GetAnimation(animationID).totalRows; }
+	int GetFristFrame() const { return AssetManager::GetAnimation(animationID).firstFrame; }
+	int GetLastFrame() const { return AssetManager::GetAnimation(animationID).lastFrame; }
 	float GetDelay() const { return delay; }
 	bool GetLoop() const { return loop; }
 
-	void ChangeCurrentFrames(int frames) { this->currentFrames = frames; }
-	void ChangeCurrentRow(int currentRow) { this->currentRow = currentRow; }
-	void ChangeTotalFrames(int totalFrames) { this->totalFrames = totalFrames; }
-	void ChangeTotalRows(int totalRows) { this->totalRows = totalRows; }
 	void ChangeDelay(float delay) { this->delay = delay; }
 	void ChangeLoop(bool loop) { this->loop = loop; }
 private:
-	void CurrentFrame(int& index);
-	int CurrentFrameIndex();
+	glm::ivec2 CalculateCurrentFrame();
+	void UpdateMesh();
 private:
-	std::string textureID;
-	int currentFrames = 0;
-	int currentRow = 0;
-	int totalFrames = 0;
-	int totalRows = 0;
+	std::string animationID;
+	int currentFrame = 0;
 	float delay = 0.0f;
 	bool loop = true;
-
 	float timeElapsed = 0.0f;
-
-	int texWidth = 0;
-	int texHeight = 0;
-	int defaultRow = 0;
 
 	friend struct Animator;
 	friend class AnimationController;

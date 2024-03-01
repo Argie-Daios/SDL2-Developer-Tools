@@ -15,6 +15,10 @@ Game::Game()
 	AssetManager::LoadTexture("Wizard_Attack", "assets/textures/Wizard/Attack1.png");
 	AssetManager::LoadTexture("X", "assets/textures/X.png");
 	AssetManager::LoadTexture("Vortex", "assets/textures/Effects/Vortex.png");
+	AssetManager::LoadAnimation("Vortex_Animation", AnimationProperties{ "Vortex", 63, 9, 7, 0, 48 });
+	AssetManager::LoadAnimation("Wizard_Idle_Animation", AnimationProperties{ "Wizard_Idle", 6, 6, 1, 0, 6 });
+	AssetManager::LoadAnimation("Wizard_Run_Animation", AnimationProperties{ "Wizard_Run", 8, 8, 1, 0, 8 });
+	AssetManager::LoadAnimation("Wizard_Attack_Animation", AnimationProperties{ "Wizard_Attack", 8, 8, 1, 0, 8 });
 	AssetManager::LoadFont("Arial", "assets/fonts/arial.ttf", 50);
 
 	GetCurrentScene()->AddEntity("Wizard");
@@ -22,9 +26,9 @@ Game::Game()
 	auto& transformComponent = GetCurrentScene()->GetEntity("Wizard").GetComponent<Transform>();
 	auto& animatorComponent = GetCurrentScene()->GetEntity("Wizard").AddComponent<Animator>(
 		std::initializer_list({
-			AnimationNode("Idle", CreateRef<Animation>("Wizard_Idle", 6, 0, 6, 1)),
-			AnimationNode("Run", CreateRef<Animation>("Wizard_Run", 8, 0, 8, 1)),
-			AnimationNode("Attack", CreateRef<Animation>("Wizard_Attack", 8, 0, 8, 1, 100, true))
+			AnimationNode("Idle", CreateRef<Animation>("Wizard_Idle_Animation")),
+			AnimationNode("Run", CreateRef<Animation>("Wizard_Run_Animation")),
+			AnimationNode("Attack", CreateRef<Animation>("Wizard_Attack_Animation"))
 		})
 	);
 
@@ -58,7 +62,7 @@ Game::Game()
 	//GetCurrentScene()->GetEntity("X").transform().Translate(glm::vec2(650, 100));
 	GetCurrentScene()->GetEntity("X").transform().SetZValue(5.0f);
 
-	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("Vortex", 48, 0, 9, 7, 20);
+	auto& spriteRenderer = GetCurrentScene()->GetEntity("X").AddComponent<Animation>("Vortex_Animation", 20);
 
 	GetCurrentScene()->AddEntity("Entity 1");
 	GetCurrentScene()->GetEntity("Entity 1").AddComponent<Text>("Text1", "EXW PESEI", "Arial", glm::vec3(255, 0, 0));
@@ -69,6 +73,9 @@ Game::Game()
 	AssetManager::CreatePrefab("Prefab_Wizard", GetCurrentScene()->GetEntity("Wizard"));
 	AssetManager::CreatePrefab("Prefab_Vortex", GetCurrentScene()->GetEntity("X"));
 	GetCurrentScene()->DeleteEntity("X");
+
+	Entity entity = GetCurrentScene()->AddEntity("FPS counter");
+	entity.AddComponent<Text>("TextFPS", "0", "Arial", glm::vec3(0, 255, 0));
 }
 
 void Game::Update()
@@ -81,4 +88,12 @@ void Game::Update()
 	{
 		Renderer::SetRender(false);
 	}
+
+	Entity entity = GetCurrentScene()->GetEntity("FPS counter");
+	auto& textComponent = entity.GetComponent<Text>();
+
+	/*if (std::stoi(textComponent.GetLabel()) != (int)Time::FPS())
+	{
+		textComponent.ChangeLabel(std::to_string((int)Time::FPS()));
+	}*/
 }

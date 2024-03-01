@@ -3,7 +3,7 @@
 class Time
 {
 public:
-	static void Init(float time = 0.0f);
+	static void Init();
 	static void Tick();
 
 	inline static void SetTimeMultiplier(float multiplier) { m_TimeMultiplier = multiplier; }
@@ -14,6 +14,7 @@ public:
 
 	inline static float DeltaTime() { return m_Time; }
 	static float TotalTime();
+	static float FPS();
 private:
 	static float m_Time;
 	static float m_LastFrameTime;

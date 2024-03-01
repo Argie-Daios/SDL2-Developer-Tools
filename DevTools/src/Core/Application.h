@@ -21,6 +21,8 @@ public:
 	virtual void Draw();
 	virtual void Run();
 
+	static void Shutdown() { s_Instance->m_Running = false; }
+
 	static Ref<Window> GetWindow() { return window; }
 
 	static Ref<Scene> GetCurrentScene() { return s_Scenes[currentScene]; }

@@ -161,39 +161,16 @@ void SpriteRenderer::UpdateSprite()
 // Animation
 
 Animation::Animation()
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID("-"), currentFrames(0), currentRow(0), totalFrames(0), totalRows(0), delay(0), loop(0), defaultRow(0)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationID("-"), delay(0), loop(0), timeElapsed(0.0f)
 {
 
 }
 
-Animation::Animation(const std::string& textureID, int currentFrames, int currentRow, int totalFrames, int totalRows, float delay, bool loop)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID(textureID), currentFrames(currentFrames), currentRow(currentRow), totalFrames(totalFrames),
-	totalRows(totalRows), delay(delay), loop(loop), defaultRow(currentRow), timeElapsed(0.0f)
+Animation::Animation(const std::string& animationID, float delay, bool loop)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationID(animationID), 
+	delay(delay), loop(loop), timeElapsed(0.0f)
 {
-	Entity e = { m_Entity, m_Scene };
-	auto& transformComponent = e.transform();
-	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
-
-	spriteRenderer.ChangeTextureID(textureID);
-	texWidth = spriteRenderer.GetSource().w;
-	texHeight = spriteRenderer.GetSource().h;
-	transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
-}
-
-Animation::Animation(const Animation& animation)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
-{
-	textureID = animation.textureID;
-	currentFrames = animation.currentFrames;
-	currentRow = animation.defaultRow;
-	totalFrames = animation.totalFrames;
-	totalRows = animation.totalRows;
-	delay = animation.delay;
-	loop = animation.loop;
-	timeElapsed = 0.0f;
-	texWidth = animation.texWidth;
-	texHeight = animation.texHeight;
-	defaultRow = animation.defaultRow;
+	UpdateMesh();
 }
 
 void Animation::Animate()
@@ -204,63 +181,58 @@ void Animation::Animate()
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.GetComponent<SpriteRenderer>();
 
-	int frameIndex;
-
-	if (textureID != spriteRenderer.GetTextureID())
+	if (animationID != spriteRenderer.GetTextureID())
 	{
-		spriteRenderer.ChangeTextureID(textureID);
-		texWidth = spriteRenderer.GetSource().w;
-		texHeight = spriteRenderer.GetSource().h;
-		transformComponent.SetSize(glm::vec2(texWidth / totalFrames, texHeight / totalRows));
+		UpdateMesh();
 	}
 
-	CurrentFrame(frameIndex);
+	glm::ivec2 indexes = CalculateCurrentFrame();
+	glm::vec2 size = transformComponent.GetSize();
 
 	timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
 
-	spriteRenderer.SetSource(SDL_Rect{ frameIndex, currentRow * (texHeight / totalRows), texWidth / totalFrames, texHeight / totalRows});
+	std::cout << "Current Frame : " << currentFrame << " Col Index : " << indexes.x << " Row Index : " << indexes.y << std::endl;
+
+	spriteRenderer.SetSource(SDL_Rect{indexes.x * (int)size.x, indexes.y * (int)size.y, (int)size.x, (int)size.y});
 }
 
 bool Animation::isComplete()
 {
-	if(currentFrames <= totalFrames)
-		return CurrentFrameIndex() + 1 == currentFrames;
-
-	return CurrentFrameIndex() + (totalFrames * currentRow) == currentFrames - 1;
+	return currentFrame == GetLastFrame() - 1;
 }
 
-void Animation::CurrentFrame(int& index)
-{
-	int frameSize;
-
-	if (totalFrames == 0)
-	{
-		index = 0;
-		return;
-	}
-
-	frameSize = texWidth / totalFrames;
-
-	index = CurrentFrameIndex() * frameSize;
-}
-
-int Animation::CurrentFrameIndex()
+glm::ivec2 Animation::CalculateCurrentFrame()
 {	
-	int frames = ((int)timeElapsed / (int)delay);
-	int index = (frames % currentFrames);
+	AnimationProperties animationProps = AssetManager::GetAnimation(animationID);
+	int index = (int)(timeElapsed / delay);
+	int colIndex, rowIndex;
 
-	if (index >= totalFrames)
+	currentFrame = index % animationProps.totalFrames;
+
+	if (currentFrame == animationProps.lastFrame)
 	{
-		currentRow++;
-		index = 0;
-		timeElapsed = 0;
-		if (currentRow == totalRows)
-		{
-			currentRow = 0;
-		}
+		currentFrame = 0;
+		timeElapsed = 0.0f;
+		index = (int)(timeElapsed / delay);
 	}
 
-	return index;
+	colIndex = index % animationProps.totalFramesPerRow;
+	rowIndex = currentFrame / animationProps.totalFramesPerRow;
+
+	// std::cout << "Row Index : " << rowIndex << " currentFrame : " << currentFrame << " totalFrames : " << animationProps.totalFrames << std::endl;
+
+	return glm::ivec2(colIndex, rowIndex);
+}
+
+void Animation::UpdateMesh()
+{
+	Entity e = { m_Entity, m_Scene };
+	AnimationProperties& animationProps = AssetManager::GetAnimation(animationID);
+	Texture& texture = AssetManager::GetTexture(animationProps.textureID);
+	auto& transformComponent = e.transform();
+	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
+	spriteRenderer.ChangeTextureID(animationProps.textureID);
+	transformComponent.SetSize(glm::vec2(texture.width / animationProps.totalFramesPerRow, texture.height / animationProps.totalRows));
 }
 
 // Animator
@@ -479,8 +451,10 @@ void Text::UpdateMesh()
 {
 	Entity e = { m_Entity, m_Scene };
 	Texture texture = AssetManager::GetTexture(textID);
+	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
 	spriteRenderer.ChangeTextureID(textID);
+	transformComponent.SetSize(glm::vec2(texture.width, texture.height));
 }
 
 // Behaviour

@@ -6,10 +6,10 @@ float Time::m_Time = 0.0f;
 float Time::m_LastFrameTime = 0.0f;
 float Time::m_TimeMultiplier = 1.0f;
 
-void Time::Init(float time)
+void Time::Init()
 {
-	m_Time = time;
-	m_LastFrameTime = 0.0f;
+	m_Time = (float)SDL_GetTicks();
+	m_LastFrameTime = (float)SDL_GetTicks();
 }
 
 void Time::Tick()
@@ -24,4 +24,21 @@ void Time::Tick()
 float Time::TotalTime()
 {
 	return MillisecondsToSeconds((float)SDL_GetTicks());
+}
+
+float Time::FPS()
+{
+	static float timeElapsed = 0.0f;
+	static int frames = 0;
+	static float FPS = 0.0f;
+
+	timeElapsed += Time::DeltaTime();
+	frames++;
+
+	if (timeElapsed >= 1.0f)
+	{
+		FPS = (float)frames / timeElapsed;
+	}
+
+	return FPS;
 }

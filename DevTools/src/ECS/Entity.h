@@ -224,16 +224,11 @@ private:
 
 		auto& animationSrc = entitySrc.GetComponent<Animation>();
 
-		auto texID = animationSrc.GetTextureID();
-		auto currentFrames = animationSrc.GetCurrentFrames();
-		auto currentRow = animationSrc.GetDefaultRow();
-		auto totalFrames = animationSrc.GetTotalFrames();
-		auto totalRows = animationSrc.GetTotalRows();
+		auto animationID = animationSrc.GetAnimationID();
 		auto delay = animationSrc.GetDelay();
 		auto loop = animationSrc.GetLoop();
 
-		auto& animation = entityDst.AddComponent<Animation>(texID, currentFrames, currentRow, totalFrames,
-			totalRows, delay, loop);
+		auto& animation = entityDst.AddComponent<Animation>(animationID, delay, loop);
 	}
 
 	static void CopyAnimator(Entity entitySrc, Entity entityDst)

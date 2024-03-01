@@ -62,6 +62,6 @@ private:
 	std::unordered_map<std::string, Ref<Parameter>> m_Parameters;
 
 	friend class Edge;
-	friend class Condition;
+	friend class Condition;                           
 	friend class Parameter;
 };

@@ -9,6 +9,7 @@
 #include <SDL_ttf.h>
 
 std::unordered_map<std::string, Texture> AssetManager::s_Textures;
+std::unordered_map<std::string, AnimationProperties> AssetManager::s_Animations;
 std::unordered_map<std::string, Font> AssetManager::s_Fonts;
 std::unordered_map<std::string, TextProperties> AssetManager::s_Texts;
 std::unordered_map<std::string, Entity> AssetManager::s_Prefabs;
@@ -27,11 +28,26 @@ void AssetManager::LoadTexture(const std::string& name, const std::string filepa
 	s_Textures.emplace(name, Texture{texture, filepath, width, height});
 }
 
-Texture AssetManager::GetTexture(const std::string& name)
+Texture& AssetManager::GetTexture(const std::string& name)
 {
 	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::TEXTURE), "There is no such texture with the name : " + name);
 
 	return s_Textures[name];
+}
+
+void AssetManager::LoadAnimation(const std::string& name, const AnimationProperties& animationProperties)
+{
+	GAME_ASSERT(!isAlreadyIn(name, ASSET_TYPE::ANIMATION), "There is alredy an animation with the name : " + name);
+	GAME_ASSERT(isAlreadyIn(animationProperties.textureID, ASSET_TYPE::TEXTURE), "There is no such a texture with the name : " + name);
+
+	s_Animations.emplace(name, animationProperties);
+}
+
+AnimationProperties& AssetManager::GetAnimation(const std::string& name)
+{
+	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::ANIMATION), "There is no such animation with the name : " + name);
+		
+	return s_Animations[name];
 }
 
 void AssetManager::LoadFont(const std::string& name, const std::string& filepath, int fontSize)
@@ -44,7 +60,7 @@ void AssetManager::LoadFont(const std::string& name, const std::string& filepath
 	s_Fonts.emplace(name, Font{ font, filepath, fontSize });
 }
 
-Font AssetManager::GetFont(const std::string& name)
+Font& AssetManager::GetFont(const std::string& name)
 {
 	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::FONT), "There is no such font with the name : " + name);
 
@@ -114,7 +130,7 @@ bool AssetManager::ChangeTextColor(const std::string& name, const glm::vec3& col
 	return true;
 }
 
-TextProperties AssetManager::GetText(const std::string& name)
+TextProperties& AssetManager::GetText(const std::string& name)
 {
 	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::TEXT), "There is no such a text with the name : " + name);
 
@@ -152,6 +168,7 @@ bool AssetManager::isAlreadyIn(const std::string& name, const ASSET_TYPE& type)
 	switch (type)
 	{
 	case ASSET_TYPE::TEXTURE: return s_Textures.find(name) != s_Textures.end();
+	case ASSET_TYPE::ANIMATION: return s_Animations.find(name) != s_Animations.end();
 	case ASSET_TYPE::FONT: return s_Fonts.find(name) != s_Fonts.end();
 	case ASSET_TYPE::TEXT: return s_Texts.find(name) != s_Texts.end();
 	case ASSET_TYPE::PREFAB: return s_Prefabs.find(name) != s_Prefabs.end();

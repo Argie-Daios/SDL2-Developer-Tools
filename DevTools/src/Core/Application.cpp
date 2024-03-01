@@ -157,10 +157,12 @@ void Application::Draw()
 
 void Application::Run()
 {
+	/*float fpsTimer = 0;
+	int frameCount = 0;*/
+	Time::Init();
 	while (m_Running)
 	{
 		Time::Tick();
-
 		Event(&Input::Event());
 		cpproutine::CoroutineManager::Update();
 		Update();
@@ -168,6 +170,23 @@ void Application::Run()
 		Renderer::Begin();
 		Draw();
 		Renderer::End();
+
+		//fpsTimer += Time::DeltaTime();
+		//frameCount++;
+
+		//// If one second has elapsed
+		//if (fpsTimer >= 1.0f)
+		//{
+		//	// Calculate FPS
+		//	float fps = frameCount / fpsTimer;
+
+		//	// Print FPS to console
+		//	std::cout << "FPS: " << fps << std::endl;
+
+		//	// Reset counters
+		//	fpsTimer = 0.0f;
+		//	frameCount = 0;
+		//}
 	}
 
 }
