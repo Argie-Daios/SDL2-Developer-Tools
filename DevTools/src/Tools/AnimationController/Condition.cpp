@@ -144,3 +144,57 @@ bool Condition::CheckCondition()
 	GAME_ASSERT(false, "Wrong Type While Checking Condtion");
 	return false;
 }
+
+bool Condition::CheckCondition(Parameter* parameter)
+{
+	GAME_ASSERT(parameter, "Null pointer");
+
+	switch (m_ValueType)
+	{
+	case Type::INT:
+	{
+		int a = *(int*)parameter->GetValue();
+		int b = *(int*)m_Value;
+
+		switch (m_Operation)
+		{
+		case Operation::OperationFunc::INT_EQUALS: return Operation::intEquals(a, b);
+		case Operation::OperationFunc::INT_NOT_EQUALS: return Operation::intNotEquals(a, b);
+		case Operation::OperationFunc::INT_LESS: return Operation::intLess(a, b);
+		case Operation::OperationFunc::INT_GREATER: return Operation::intGreater(a, b);
+		}
+
+		GAME_ASSERT(false, "Wrong Operation Function While Checking Condition (type : int)");
+	}
+	case Type::FLOAT:
+	{
+		float a = *(float*)parameter->GetValue();
+		float b = *(float*)m_Value;
+
+		switch (m_Operation)
+		{
+		case Operation::OperationFunc::FLOAT_EQUALS: return Operation::floatEquals(a, b);
+		case Operation::OperationFunc::FLOAT_NOT_EQUALS: return Operation::floatNotEquals(a, b);
+		case Operation::OperationFunc::FLOAT_LESS: return Operation::floatLess(a, b);
+		case Operation::OperationFunc::FLOAT_GREATER: return Operation::floatGreater(a, b);
+		}
+
+		GAME_ASSERT(false, "Wrong Operation Function While Checking Condition (type : float)");
+	}
+	case Type::BOOL:
+	{
+		bool a = *(bool*)parameter->GetValue();
+		bool b = *(bool*)m_Value;
+
+		switch (m_Operation)
+		{
+		case Operation::OperationFunc::BOOL_IS: return Operation::boolEquals(a, b);
+		}
+
+		GAME_ASSERT(false, "Wrong Operation Function While Checking Condition (type : bool)");
+	}
+	}
+
+	GAME_ASSERT(false, "Wrong Type While Checking Condtion");
+	return false;
+}

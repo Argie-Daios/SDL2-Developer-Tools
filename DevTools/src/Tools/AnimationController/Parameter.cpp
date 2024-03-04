@@ -21,7 +21,7 @@ Parameter::~Parameter()
 
 void Parameter::SetValue(void* value)
 {
-	if (m_Value != nullptr) delete m_Value;
+	if (m_Value != nullptr) free(m_Value);
 
 	m_Value = value;
 }

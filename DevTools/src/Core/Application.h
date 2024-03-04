@@ -48,4 +48,5 @@ protected:
 	friend struct Transform;
 	friend class Renderer;
 	friend class MoveEntity;
+	friend struct Animator;
 };

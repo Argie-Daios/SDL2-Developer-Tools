@@ -11,22 +11,32 @@
 struct Animation;
 class Entity;
 
-using AnimationNode = std::pair < std::string, Ref<Animation>>;
+struct AnimationNode
+{
+	std::string animationID = "-";
+	int currentFrame = 0;
+	float delay = 100.0f;
+	bool loop = true;
+	float timeElapsed = 0.0f;
+
+	void Update();
+	bool isComplete();
+};
 
 class AnimationController
 {
 public:
 	AnimationController();
-	void Copy(const AnimationController& animationController, const Entity& entity);
 
-	void Update();
+	void Update(std::string& current, std::unordered_map<std::string, Ref<Parameter>>& parameters);
 
-	Ref<Animation> GetCurrentAnimation();
+	AnimationNode GetCurrentAnimation(std::string current);
 
-	void AddAnimation(std::string name, Ref<Animation> animation);
+	void AddAnimation(std::string name, AnimationNode animation);
 	void RemoveAnimation(const std::string& name);
 
 	void AddEdge(const std::string& source, const std::string& destination, bool hasExitTime = true);
+	void AddTwoSidedEdge(const std::string& source, const std::string& destination, bool hasExitTimeSrc = true, bool hasExitTimeDst = true);
 	void RemoveEdge(const std::string& source, const std::string& destination);
 
 	void AddParameter(const std::string& name, Type type, void* value);
@@ -52,16 +62,17 @@ private:
 	std::string CheckName(std::string name, int num = 1);
 	bool DoesLinkExists(const std::string& source, const std::string& destination);
 	int FindLink(const std::string& source, const std::string& destination);
-	static std::string FindParameter(const AnimationController& animationController, Parameter* parameter);
+	std::string GetParameterName(Parameter* parameter);
 private:
 	std::string m_Entry;
 	std::string m_Current;
 
-	std::unordered_map<std::string, Ref<Animation>> m_Animations;
+	std::unordered_map<std::string, AnimationNode> m_Animations;
 	std::unordered_map<std::string, std::vector<Edge>> m_Links;
 	std::unordered_map<std::string, Ref<Parameter>> m_Parameters;
 
 	friend class Edge;
 	friend class Condition;                           
 	friend class Parameter;
+	friend class Animator;
 };

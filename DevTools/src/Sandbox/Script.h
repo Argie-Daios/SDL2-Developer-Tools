@@ -12,7 +12,8 @@ enum class ABILITY
 {
 	FRIST,
 	SECOND,
-	THIRD
+	THIRD,
+	FOURTH
 };
 
 class Wizard : public ControlledEntity
@@ -58,7 +59,7 @@ public:
 		}
 		if (Input::IsKeyDown(Key::L) && !Attacking)
 		{
-			Entity ent = Instantiate(wizardPrefab, transform->GetPosition() + glm::vec2(500, 200));
+			CoroutineManager::StartCoroutine(Attack(ABILITY::FOURTH));
 		}
 	}
 
@@ -86,6 +87,13 @@ public:
 		{
 			Entity ent = Instantiate(vortexPrefab, transform->GetPosition() + glm::vec2(700, 200));
 			CoroutineManager::StartCoroutine(Circle(ent));
+			break;
+		}
+		case ABILITY::FOURTH:
+		{
+			Entity ent = Instantiate(vortexPrefab, glm::vec2(300, -100));
+			ent.transform().SetScale(glm::vec2(2.0f, 2.0f));
+			CoroutineManager::StartCoroutine(Summon(ent));
 			break;
 		}
 		}
@@ -138,6 +146,19 @@ public:
 
 			return false;
 		});
+		DeleteEntity(ent);
+	}
+
+	IEnumerator Summon(Entity ent)
+	{
+		yield_return NewReturnType<WaitUntil>([&]() {
+			if (ent.GetComponent<Animation>().isComplete())
+			{
+					return true;
+			}
+
+			return false;
+			});
 		DeleteEntity(ent);
 	}
 

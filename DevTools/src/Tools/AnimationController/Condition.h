@@ -63,11 +63,13 @@ class Condition
 {
 public:
 	Condition(Parameter& parameter, Operation::OperationFunc operation, void* value, Type valueType);
+	Condition(const Condition&) = default;
 	~Condition();
 		
 	Parameter* GetParameter() { return m_Parameter; }
 
 	bool CheckCondition();
+	bool CheckCondition(Parameter* parameter);
 private:
 	Parameter* m_Parameter;
 	Operation::OperationFunc m_Operation;

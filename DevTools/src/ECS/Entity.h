@@ -234,10 +234,7 @@ private:
 	static void CopyAnimator(Entity entitySrc, Entity entityDst)
 	{
 		// TODO
-		if (!entitySrc.HasComponent<Animator>()) return;
-
-		auto& animatorComponent = entityDst.AddComponent<Animator>();
-		animatorComponent.Copy(entitySrc.GetComponent<Animator>());
+		
 	}
 
 	static void CopyText(Entity entitySrc, Entity entityDst)

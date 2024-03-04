@@ -3,6 +3,7 @@
 #include "Core/Macros.h"
 #include "Renderer/Renderer.h"
 #include "ECS/Entity.h"
+#include "AnimationController/AnimationController.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -13,6 +14,7 @@ std::unordered_map<std::string, AnimationProperties> AssetManager::s_Animations;
 std::unordered_map<std::string, Font> AssetManager::s_Fonts;
 std::unordered_map<std::string, TextProperties> AssetManager::s_Texts;
 std::unordered_map<std::string, Entity> AssetManager::s_Prefabs;
+std::unordered_map<std::string, AnimationController> AssetManager::s_AnimationControllers;
 Ref<Scene> AssetManager::s_PrefabDummyScene = CreateRef<Scene>();
 
 void AssetManager::LoadTexture(const std::string& name, const std::string filepath)
@@ -155,6 +157,20 @@ Entity AssetManager::Prefab(const std::string& name)
 	return s_Prefabs[name];
 }
 
+void AssetManager::CreateAnimationController(const std::string& name, const AnimationController& animationController)
+{
+	GAME_ASSERT(!isAlreadyIn(name, ASSET_TYPE::ANIMATION_CONTROLLER), "There is already an animation controller with the name : " + name);
+
+	s_AnimationControllers.emplace(name, animationController);
+}
+
+AnimationController& AssetManager::GetAnimationController(const std::string& name)
+{
+	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::ANIMATION_CONTROLLER), "There is no such an animation controller with the name : " + name);
+
+	return s_AnimationControllers[name];
+}
+
 void AssetManager::Clear()
 {
 	ClearTextures();
@@ -172,6 +188,7 @@ bool AssetManager::isAlreadyIn(const std::string& name, const ASSET_TYPE& type)
 	case ASSET_TYPE::FONT: return s_Fonts.find(name) != s_Fonts.end();
 	case ASSET_TYPE::TEXT: return s_Texts.find(name) != s_Texts.end();
 	case ASSET_TYPE::PREFAB: return s_Prefabs.find(name) != s_Prefabs.end();
+	case ASSET_TYPE::ANIMATION_CONTROLLER: return s_AnimationControllers.find(name) != s_AnimationControllers.end();
 	}
 
 	GAME_ASSERT(false, "No such an asset type");

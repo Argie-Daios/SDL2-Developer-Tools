@@ -107,27 +107,23 @@ public:
 
 	bool isComplete();
 
-	
-	std::string GetAnimationID() const { return animationID; }
-	int GetTotalFrames() const { return AssetManager::GetAnimation(animationID).totalFrames; }
-	int GetTotalFramesPerRow() const { return AssetManager::GetAnimation(animationID).totalFramesPerRow; }
-	int GetTotalRows() const { return AssetManager::GetAnimation(animationID).totalRows; }
-	int GetFristFrame() const { return AssetManager::GetAnimation(animationID).firstFrame; }
-	int GetLastFrame() const { return AssetManager::GetAnimation(animationID).lastFrame; }
-	float GetDelay() const { return delay; }
-	bool GetLoop() const { return loop; }
+	std::string GetAnimationID() const { return animationNode.animationID; }
+	std::string GetTextureID() const { return AssetManager::GetAnimation(animationNode.animationID).textureID; }
+ 	int GetTotalFrames() const { return AssetManager::GetAnimation(animationNode.animationID).totalFrames; }
+	int GetTotalFramesPerRow() const { return AssetManager::GetAnimation(animationNode.animationID).totalFramesPerRow; }
+	int GetTotalRows() const { return AssetManager::GetAnimation(animationNode.animationID).totalRows; }
+	int GetFristFrame() const { return AssetManager::GetAnimation(animationNode.animationID).firstFrame; }
+	int GetLastFrame() const { return AssetManager::GetAnimation(animationNode.animationID).lastFrame; }
+	float GetDelay() const { return animationNode.delay; }
+	bool GetLoop() const { return animationNode.loop; }
 
-	void ChangeDelay(float delay) { this->delay = delay; }
-	void ChangeLoop(bool loop) { this->loop = loop; }
+	void ChangeDelay(float delay) { animationNode.delay = delay; }
+	void ChangeLoop(bool loop) { animationNode.loop = loop; }
 private:
 	glm::ivec2 CalculateCurrentFrame();
 	void UpdateMesh();
 private:
-	std::string animationID;
-	int currentFrame = 0;
-	float delay = 0.0f;
-	bool loop = true;
-	float timeElapsed = 0.0f;
+	AnimationNode animationNode;
 
 	friend struct Animator;
 	friend class AnimationController;
@@ -137,41 +133,29 @@ struct Animator : public Component
 {
 public:
 	Animator();
-	Animator(const std::initializer_list<std::pair<std::string, Ref<Animation>>>& animations);
-	Animator(const Animator&);
-	void Copy(const Animator& animator);
+	Animator(const std::string& name);
+	Animator(const Animator&) = default;
 
 	void Update();
 
-	void AddAnimation(std::string name, Ref<Animation> animation);
-	void RemoveAnimation(const std::string& name);
-
-	void AddEdge(const std::string& source, const std::string& destination, bool hasExitTime = true);
-	void AddTwoSideEdge(const std::string& source, const std::string& destination, bool hasExitTimeSourceToDestination = true, bool hasExitTimeDestinationToSource = true);
-	void RemoveEdge(const std::string& source, const std::string& destination);
-
-	void AddParameter(const std::string& name, Type type, void* value);
-	void AddIntParameter(const std::string& name, int value);
-	void AddFloatParameter(const std::string& name, float value);
-	void AddBoolParameter(const std::string& name, bool value);
-	void RemoveParameter(const std::string& name);
 	void ChangeParameterValue(const std::string& name, void* value);
 	void ChangeIntParameterValue(const std::string& name, int value);
 	void ChangeFloatParameterValue(const std::string& name, float value);
 	void ChangeBoolParameterValue(const std::string& name, bool value);
-
-	void AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
-		Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType);
-	void AddConditionOnEdgeInt(const std::string& source, const std::string& destination, const std::string& parameter,
-		Operation::OperationFunc operation, int valueToCompare);
-	void AddConditionOnEdgeFloat(const std::string& source, const std::string& destination, const std::string& parameter,
-		Operation::OperationFunc operation, float valueToCompare);
-	void AddConditionOnEdgeBool(const std::string& source, const std::string& destination, const std::string& parameter,
-		Operation::OperationFunc operation, bool valueToCompare);
-	void RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter);
 private:
-	AnimationController controller;
+	std::string m_AnimationControllerID;
+	Animation m_CurrentAnimation;
+	std::unordered_map<std::string, Ref<Parameter>> m_Parameters;
+	std::string m_Current;
 };
+
+//struct Animator : public Component
+//{
+//public:
+//
+//private:
+//	std::string animationController;
+//};
 
 struct Text : public Component
 {

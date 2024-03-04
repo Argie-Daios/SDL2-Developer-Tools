@@ -161,27 +161,26 @@ void SpriteRenderer::UpdateSprite()
 // Animation
 
 Animation::Animation()
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationID("-"), delay(0), loop(0), timeElapsed(0.0f)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationNode(AnimationNode{"-"})
 {
 
 }
 
 Animation::Animation(const std::string& animationID, float delay, bool loop)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationID(animationID), 
-	delay(delay), loop(loop), timeElapsed(0.0f)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationNode(AnimationNode{animationID, 0, delay, loop})
 {
 	UpdateMesh();
 }
 
 void Animation::Animate()
 {
-	if (!loop && isComplete()) return;
+	if (!animationNode.loop && isComplete()) return;
 
 	Entity e = { m_Entity, m_Scene };
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.GetComponent<SpriteRenderer>();
 
-	if (animationID != spriteRenderer.GetTextureID())
+	if (GetTextureID() != spriteRenderer.GetTextureID())
 	{
 		UpdateMesh();
 	}
@@ -189,35 +188,36 @@ void Animation::Animate()
 	glm::ivec2 indexes = CalculateCurrentFrame();
 	glm::vec2 size = transformComponent.GetSize();
 
-	timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
+	animationNode.timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
 
-	std::cout << "Current Frame : " << currentFrame << " Col Index : " << indexes.x << " Row Index : " << indexes.y << std::endl;
+	//std::cout << "Current Frame : " << currentFrame << " Col Index : " << indexes.x << " Row Index : " << indexes.y << std::endl;
 
 	spriteRenderer.SetSource(SDL_Rect{indexes.x * (int)size.x, indexes.y * (int)size.y, (int)size.x, (int)size.y});
 }
 
 bool Animation::isComplete()
 {
-	return currentFrame == GetLastFrame() - 1;
+
+	return animationNode.isComplete();
 }
 
 glm::ivec2 Animation::CalculateCurrentFrame()
 {	
-	AnimationProperties animationProps = AssetManager::GetAnimation(animationID);
-	int index = (int)(timeElapsed / delay);
+	AnimationProperties animationProps = AssetManager::GetAnimation(animationNode.animationID);
+	int index = (int)(animationNode.timeElapsed / animationNode.delay);
 	int colIndex, rowIndex;
 
-	currentFrame = index % animationProps.totalFrames;
+	animationNode.currentFrame = index % animationProps.totalFrames;
 
-	if (currentFrame == animationProps.lastFrame)
+	if (isComplete())
 	{
-		currentFrame = 0;
-		timeElapsed = 0.0f;
-		index = (int)(timeElapsed / delay);
+		animationNode.currentFrame = 0;
+		animationNode.timeElapsed = 0.0f;
+		index = (int)(animationNode.timeElapsed / animationNode.delay);
 	}
 
 	colIndex = index % animationProps.totalFramesPerRow;
-	rowIndex = currentFrame / animationProps.totalFramesPerRow;
+	rowIndex = animationNode.currentFrame / animationProps.totalFramesPerRow;
 
 	// std::cout << "Row Index : " << rowIndex << " currentFrame : " << currentFrame << " totalFrames : " << animationProps.totalFrames << std::endl;
 
@@ -227,7 +227,7 @@ glm::ivec2 Animation::CalculateCurrentFrame()
 void Animation::UpdateMesh()
 {
 	Entity e = { m_Entity, m_Scene };
-	AnimationProperties& animationProps = AssetManager::GetAnimation(animationID);
+	AnimationProperties& animationProps = AssetManager::GetAnimation(animationNode.animationID);
 	Texture& texture = AssetManager::GetTexture(animationProps.textureID);
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
@@ -243,133 +243,82 @@ Animator::Animator()
 	
 }
 
-Animator::Animator(const std::initializer_list<AnimationNode>& animations)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
+Animator::Animator(const std::string& name)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), m_AnimationControllerID(name)
 {
-	for (auto element : animations)
+	AnimationController& controller = AssetManager::GetAnimationController(name);
+	m_Current = controller.m_Entry;
+	m_CurrentAnimation.m_Entity = m_Entity;
+	m_CurrentAnimation.m_Scene = m_Scene;
+	m_CurrentAnimation.animationNode.animationID = controller.GetCurrentAnimation(m_Current).animationID;
+	m_CurrentAnimation.animationNode.currentFrame = controller.GetCurrentAnimation(m_Current).currentFrame;
+	m_CurrentAnimation.animationNode.delay = controller.GetCurrentAnimation(m_Current).delay;
+	m_CurrentAnimation.animationNode.loop = controller.GetCurrentAnimation(m_Current).loop;
+	m_CurrentAnimation.animationNode.timeElapsed = controller.GetCurrentAnimation(m_Current).timeElapsed;
+	m_CurrentAnimation.UpdateMesh();
+
+	for (auto& param : controller.m_Parameters)
 	{
-		AddAnimation(element.first, element.second);
+		m_Parameters.emplace(param.first, CreateRef<Parameter>(param.second->GetType(), CopyPtr(param.second->GetValue(), param.second->GetType())));
 	}
-}
-
-Animator::Animator(const Animator& animator)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
-{
-	controller = animator.controller;
-}
-
-void Animator::Copy(const Animator& animator)
-{
-	std::cout << "EXDE" << std::endl;
-	controller.Copy(animator.controller, Entity{ m_Entity, m_Scene });
 }
 
 void Animator::Update()
 {
-	controller.Update();
-	controller.GetCurrentAnimation()->Animate();
-}
-
-void Animator::AddAnimation(std::string name, Ref<Animation> animation)
-{
-	animation->m_Entity = m_Entity;
-	animation->m_Scene = m_Scene;
-	controller.AddAnimation(name, animation);
-}
-
-void Animator::RemoveAnimation(const std::string& name)
-{
-	controller.RemoveAnimation(name);
-}
-
-void Animator::AddEdge(const std::string& source, const std::string& destination, bool hasExitTime)
-{
-	controller.AddEdge(source, destination, hasExitTime);
-}
-
-void Animator::AddTwoSideEdge(const std::string& source, const std::string& destination, bool hasExitTimeSourceToDestination, bool hasExitTimeDestinationToSource)
-{
-	AddEdge(source, destination, hasExitTimeSourceToDestination);
-	AddEdge(destination, source, hasExitTimeDestinationToSource);
-}
-
-void Animator::RemoveEdge(const std::string& source, const std::string& destination)
-{
-	controller.RemoveEdge(source, destination);
-}
-
-void Animator::AddParameter(const std::string& name, Type type, void* value)
-{
-	controller.AddParameter(name, type, value);
-}
-
-void Animator::AddIntParameter(const std::string& name, int value)
-{
-	controller.AddIntParameter(name, value);
-}
-
-void Animator::AddFloatParameter(const std::string& name, float value)
-{
-	controller.AddFloatParameter(name, value);
-}
-
-void Animator::AddBoolParameter(const std::string& name, bool value)
-{
-	controller.AddBoolParameter(name, value);
-}
-
-void Animator::RemoveParameter(const std::string& name)
-{
-	controller.RemoveParameter(name);
+	AnimationController& controller = AssetManager::GetAnimationController(m_AnimationControllerID);
+	controller.Update(m_Current, m_Parameters);
+	if (controller.GetCurrentAnimation(m_Current).animationID != m_CurrentAnimation.animationNode.animationID)
+	{
+		m_CurrentAnimation.m_Entity = m_Entity;
+		m_CurrentAnimation.m_Scene = m_Scene;
+		m_CurrentAnimation.animationNode.animationID = controller.GetCurrentAnimation(m_Current).animationID;
+		m_CurrentAnimation.animationNode.currentFrame = controller.GetCurrentAnimation(m_Current).currentFrame;
+		m_CurrentAnimation.animationNode.delay = controller.GetCurrentAnimation(m_Current).delay;
+		m_CurrentAnimation.animationNode.loop = controller.GetCurrentAnimation(m_Current).loop;
+		m_CurrentAnimation.animationNode.timeElapsed = controller.GetCurrentAnimation(m_Current).timeElapsed;
+		m_CurrentAnimation.UpdateMesh();
+	}
+	m_CurrentAnimation.Animate();
 }
 
 void Animator::ChangeParameterValue(const std::string& name, void* value)
 {
-	controller.ChangeParameterValue(name, value);
+	GAME_ASSERT(m_Parameters.find(name) != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	m_Parameters[name]->SetValue(value);
 }
 
 void Animator::ChangeIntParameterValue(const std::string& name, int value)
 {
-	controller.ChangeIntParameterValue(name, value);
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::INT, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided int");
+
+	m_Parameters[name]->SetValue(ValueToVoidPtr<int>(value));
 }
 
 void Animator::ChangeFloatParameterValue(const std::string& name, float value)
 {
-	controller.ChangeFloatParameterValue(name, value);
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
+
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::FLOAT, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided float");
+
+	m_Parameters[name]->SetValue(ValueToVoidPtr<float>(value));
 }
 
 void Animator::ChangeBoolParameterValue(const std::string& name, bool value)
 {
-	controller.ChangeBoolParameterValue(name, value);
-}
+	auto it = m_Parameters.find(name);
+	GAME_ASSERT(it != m_Parameters.end(), "Parameter (" + name + ") does not exist");
 
-void Animator::AddConditionOnEdge(const std::string& source, const std::string& destination, const std::string& parameter,
-	Operation::OperationFunc operation, void* valueToCompare, Type valueToCompareType)
-{
-	controller.AddConditionOnEdge(source, destination, parameter, operation, valueToCompare, valueToCompareType);
-}
+	Type type = it->second->GetType();
+	GAME_ASSERT(type == Type::BOOL, "Parameter (" + name + ") is of type " + TypeToString(type) + " but provided bool");
 
-void Animator::AddConditionOnEdgeInt(const std::string& source, const std::string& destination, const std::string& parameter,
-	Operation::OperationFunc operation, int valueToCompare)
-{
-	controller.AddConditionOnEdgeInt(source, destination, parameter, operation, valueToCompare);
-}
-
-void Animator::AddConditionOnEdgeFloat(const std::string& source, const std::string& destination, const std::string& parameter,
-	Operation::OperationFunc operation, float valueToCompare)
-{
-	controller.AddConditionOnEdgeFloat(source, destination, parameter, operation, valueToCompare);
-}
-
-void Animator::AddConditionOnEdgeBool(const std::string& source, const std::string& destination, const std::string& parameter,
-	Operation::OperationFunc operation, bool valueToCompare)
-{
-	controller.AddConditionOnEdgeBool(source, destination, parameter, operation, valueToCompare);
-}
-
-void Animator::RemoveConditionOffEdge(const std::string& source, const std::string& destination, const std::string& parameter)
-{
-	controller.RemoveConditionOffEdge(source, destination, parameter);
+	m_Parameters[name]->SetValue(ValueToVoidPtr<bool>(value));
 }
 
 // Text

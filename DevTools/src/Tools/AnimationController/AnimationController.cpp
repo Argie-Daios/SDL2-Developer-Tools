@@ -1,55 +1,36 @@
 #include "AnimationController.h"
 
 #include "ECS/Entity.h"
+#include "Tools/AssetManager.h"
 
 #include <algorithm>
+
+void AnimationNode::Update()
+{
+	int index = (int)(timeElapsed / delay);
+	currentFrame = index % AssetManager::GetAnimation(animationID).lastFrame;
+	timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
+}
+
+bool AnimationNode::isComplete()
+{
+	return timeElapsed >= delay * AssetManager::GetAnimation(animationID).lastFrame;
+}
 
 AnimationController::AnimationController()
 {
 	
 }
 
-void AnimationController::Copy(const AnimationController& animationController, const Entity& entity)
+void AnimationController::Update(std::string& current, std::unordered_map<std::string, Ref<Parameter>>& parameters)
 {
-	m_Entry = m_Current = animationController.m_Entry;
+	if (current.empty()) return;
 
-	for (auto& elem : animationController.m_Animations)
-	{
-		m_Animations.emplace(elem.first, CreateRef<Animation>(*elem.second));
-		m_Animations[elem.first]->m_Entity = entity.m_EntityHandle;
-		m_Animations[elem.first]->m_Scene = entity.m_Scene;
-	}
-
-	for (auto& elem : animationController.m_Parameters)
-	{
-		m_Parameters.emplace(elem.first, CreateRef<Parameter>(elem.second->m_Type, CopyPtr(elem.second->m_Value, elem.second->m_Type)));
-	}
-
-	for (auto& elem : animationController.m_Links)
-	{
-		m_Links.emplace(elem.first, std::vector<Edge>());
-		for (auto& edge : elem.second)
-		{
-			m_Links[elem.first].emplace_back(edge.m_DestinationAnimationName, edge.hasExitTime);
-			for (auto& cond : edge.m_Conditions)
-			{
-				std::string parameterName = FindParameter(animationController, cond.m_Parameter);
-				m_Links[elem.first].back().m_Conditions.emplace_back(*m_Parameters[parameterName], cond.m_Operation,
-					CopyPtr(cond.m_Value, cond.m_ValueType), cond.m_ValueType);
-			}
-		}
-	}
-}
-
-void AnimationController::Update()
-{
-	if (m_Current.empty()) return;
-
-	auto elem = m_Animations[m_Current];
+	auto elem = m_Animations[current];
 
 	// std::cout << "Current Animation : " << m_Entry << std::endl;
 
-	auto links = m_Links[m_Current];
+	auto links = m_Links[current];
 
 	if (links.empty()) return;
 
@@ -59,33 +40,31 @@ void AnimationController::Update()
 		bool canPass = true;
 		for (auto condition : edge.m_Conditions)
 		{
-			if (!condition.CheckCondition())
+			if (!condition.CheckCondition(parameters[GetParameterName(condition.GetParameter())].get()))
 			{
 				canPass = false;
 				break;
 			}
 		}
-		if ((!edge.GetExitTime() && canPass) || (elem->isComplete() && canPass))
+		if ((!edge.GetExitTime() && canPass) || (elem.isComplete() && canPass))
 		{
-			elem->timeElapsed = 0.0f;
-			m_Current = edge.m_DestinationAnimationName;
+			elem.timeElapsed = 0.0f;
+			elem.currentFrame = 0;
+			current = edge.m_DestinationAnimationName;
 			return;
 		}
 	}
 
 }
 
-Ref<Animation> AnimationController::GetCurrentAnimation()
+AnimationNode AnimationController::GetCurrentAnimation(std::string current)
 {
-	if (m_Current.empty())
-	{
-		return nullptr;
-	}
+	GAME_ASSERT(!current.empty(), "Empty");
 
-	return m_Animations[m_Current];
+	return m_Animations[current];
 }
 
-void AnimationController::AddAnimation(std::string name, Ref<Animation> animation)
+void AnimationController::AddAnimation(std::string name, AnimationNode animation)
 {
 	std::string finalName = CheckName(name);
 
@@ -95,8 +74,13 @@ void AnimationController::AddAnimation(std::string name, Ref<Animation> animatio
 	if (m_Animations.size() == 1)
 	{
 		m_Entry = name;
-		m_Current = m_Entry;
 	}
+}
+
+void AnimationController::AddTwoSidedEdge(const std::string& source, const std::string& destination, bool hasExitTimeSrc, bool hasExitTimeDst)
+{
+	AddEdge(source, destination, hasExitTimeDst);
+	AddEdge(destination, source, hasExitTimeSrc);
 }
 
 void AnimationController::RemoveAnimation(const std::string& name)
@@ -363,16 +347,16 @@ int AnimationController::FindLink(const std::string& source, const std::string& 
 	return -1;
 }
 
-std::string AnimationController::FindParameter(const AnimationController& animationController, Parameter* parameter)
+std::string AnimationController::GetParameterName(Parameter* parameter)
 {
-	for (auto& param : animationController.m_Parameters)
+	for (auto param : m_Parameters)
 	{
-		if (param.second.get() == parameter)
+		if (parameter == param.second.get())
 		{
 			return param.first;
 		}
 	}
 
-	GAME_ASSERT(false, "There is no such parameter!!");
-	return "";
+	GAME_ASSERT(false, "No such a parameter");
+	return "-";
 }

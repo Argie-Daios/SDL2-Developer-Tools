@@ -12,6 +12,8 @@ typedef struct _TTF_Font TTF_Font;
 struct SDL_Color;
 class Entity;
 class Scene;
+class AnimationController;
+class Parameter;
 struct Texture
 {
 	SDL_Texture* texture = nullptr;
@@ -44,13 +46,20 @@ struct AnimationProperties
 	int lastFrame = 0;
 };
 
+struct AnimationControllerProperties
+{
+	std::string currentAnimation = "-";
+	std::unordered_map<std::string, Parameter> parameters;
+};
+
 enum class ASSET_TYPE
 {
 	TEXTURE,
 	ANIMATION,
 	FONT,
 	TEXT,
-	PREFAB
+	PREFAB,
+	ANIMATION_CONTROLLER
 };
 
 class AssetManager
@@ -74,6 +83,9 @@ public:
 	static void CreatePrefab(const std::string& name, Entity entity);
 	static Entity Prefab(const std::string& name);
 
+	static void CreateAnimationController(const std::string& name, const AnimationController& animationController);
+	static AnimationController& GetAnimationController(const std::string& name);
+
 	// TODO : MAKE CLEAR FUNCTION
 	static void Clear();
 private:
@@ -91,6 +103,7 @@ private:
 	static std::unordered_map<std::string, Font> s_Fonts;
 	static std::unordered_map<std::string, TextProperties> s_Texts;
 	static std::unordered_map<std::string, Entity> s_Prefabs;
+	static std::unordered_map<std::string, AnimationController> s_AnimationControllers;
 
 	static Ref<Scene> s_PrefabDummyScene;
 
