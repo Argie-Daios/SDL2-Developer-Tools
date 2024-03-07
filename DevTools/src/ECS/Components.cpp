@@ -4,6 +4,7 @@
 #include "Tools/Positioner.h"
 #include "Tools/Input.h"
 
+#include <SDL.h>
 #include <SDL_ttf.h>
 #include <iostream>
 
@@ -76,7 +77,7 @@ void Transform::SetZValue(float zValue)
 		transformComponent.SetZValue(transformComponent.GetZValue() + this->zValue);
 	}
 
-	//m_Scene->m_Registry.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
+	m_Scene->Sort();
 }
 
 void Transform::SetRotation(float rotation) 
@@ -150,7 +151,7 @@ void SpriteRenderer::ChangeTextureID(std::string textureID)
 void SpriteRenderer::UpdateSprite()
 {
 	Entity en = { m_Entity, m_Scene };
-	Texture texture = AssetManager::GetTexture(textureID);
+	Texture& texture = AssetManager::GetTexture(textureID);
 	int texWidth = texture.width;
 	int texHeight = texture.height;
 
@@ -192,7 +193,7 @@ void Animation::Animate()
 
 	//std::cout << "Current Frame : " << currentFrame << " Col Index : " << indexes.x << " Row Index : " << indexes.y << std::endl;
 
-	spriteRenderer.SetSource(SDL_Rect{indexes.x * (int)size.x, indexes.y * (int)size.y, (int)size.x, (int)size.y});
+	spriteRenderer.SetSource(SDL_Rect{indexes.x * (int)size.x, indexes.y * (int)size.y, (int)size.x, (int)size.y });
 }
 
 bool Animation::isComplete()
@@ -329,7 +330,7 @@ Text::Text()
 	
 }
 
-Text::Text(const std::string& label, const std::string& font, const glm::vec3& color)
+Text::Text(const std::string& label, const std::string& font, const SDL_Color& color)
 	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene)
 {
 	std::string textID = randomStringGenerator(15);
@@ -337,7 +338,7 @@ Text::Text(const std::string& label, const std::string& font, const glm::vec3& c
 	UpdateMesh();
 }
 
-Text::Text(const std::string& textID, const std::string& label, const std::string& font, const glm::vec3& color)
+Text::Text(const std::string& textID, const std::string& label, const std::string& font, const SDL_Color& color)
 	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textID(textID)
 {
 	AssetManager::LoadText(textID, label, font, color);
@@ -373,7 +374,7 @@ int Text::GetFontSize() const
 	return AssetManager::GetFont(textProperties.font).font_size;
 }
 
-glm::vec3 Text::GetColor() const
+SDL_Color Text::GetColor() const
 {
 	return AssetManager::GetText(textID).color;
 }
@@ -390,7 +391,7 @@ void Text::ChangeFont(const std::string& font)
 		UpdateMesh();
 }
 
-void Text::ChangeColor(const glm::vec3& color)
+void Text::ChangeColor(const SDL_Color& color)
 {
 	if(AssetManager::ChangeTextColor(textID, color))
 		UpdateMesh();
@@ -407,10 +408,13 @@ void Text::UpdateMesh()
 }
 
 // Behaviour
-Behaviour::Behaviour(const Behaviour& behaviour)
-{
 
-}
+//Behaviour::Behaviour(const Behaviour& behaviour)
+//{
+//	Instance = nullptr;
+//	InstantiateScript = behaviour.InstantiateScript;
+//	DestroyInstanceScript = behaviour.DestroyInstanceScript;
+//}
 
 // Collider
 

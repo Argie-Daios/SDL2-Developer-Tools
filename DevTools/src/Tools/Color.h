@@ -2,15 +2,19 @@
 
 #include <glm/glm.hpp>
 
+struct SDL_Color;
+
 struct Color
 {
-	static const glm::vec3 BLACK;
-	static const glm::vec3 WHITE;
-	static const glm::vec3 RED;
-	static const glm::vec3 BLUE;
-	static const glm::vec3 GREEN;
-	static const glm::vec3 ORANGE;
-	static const glm::vec3 YELLOW;
-	static const glm::vec3 PINK;
-	static const glm::vec3 PURPLE;
+	static const SDL_Color BLACK;
+	static const SDL_Color WHITE;
+	static const SDL_Color RED;
+	static const SDL_Color BLUE;
+	static const SDL_Color GREEN;
+	static const SDL_Color ORANGE;
+	static const SDL_Color YELLOW;
+	static const SDL_Color PINK;
+	static const SDL_Color PURPLE;
+
+	static bool Compare(const SDL_Color& color1, const SDL_Color& color2);
 };

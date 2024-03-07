@@ -14,7 +14,7 @@ Application::Application()
 {
 	s_Instance = this;
 	
-	window = CreateRef<Window>("Application", 1440, 810);
+	window = CreateRef<Window>("Application", 1440, 810, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 	Renderer::Init(window->Get());
 
@@ -148,6 +148,14 @@ void Application::Update()
 	UpdateAnimations();
 	UpdateAnimators();
 	UpdateColliders();
+
+	if (Input::IsWindowResized())
+	{
+		// Need fix later
+		glm::ivec2 dimensions = Input::GetWindowDimensions();
+		window->SetDimensions(dimensions);
+		Renderer::Resize(dimensions);
+	}
 }
 
 void Application::Draw()

@@ -57,6 +57,7 @@ void AssetManager::LoadFont(const std::string& name, const std::string& filepath
 	GAME_ASSERT(!isAlreadyIn(name, ASSET_TYPE::FONT), "There is already a font with the name : " + name);
 
 	TTF_Font* font = TTF_OpenFont(filepath.c_str(), fontSize);
+	if (font == nullptr) std::cout << "Failed to load font in path : " << filepath.c_str() << std::endl;
 	GAME_ASSERT(font, "Failed to load font!!");
 
 	s_Fonts.emplace(name, Font{ font, filepath, fontSize });
@@ -69,7 +70,7 @@ Font& AssetManager::GetFont(const std::string& name)
 	return s_Fonts[name];
 }
 
-void AssetManager::LoadText(const std::string& name, const std::string& label, const std::string& font, const glm::vec3& color)
+void AssetManager::LoadText(const std::string& name, const std::string& label, const std::string& font, const SDL_Color& color)
 {
 	GAME_ASSERT(!isAlreadyIn(name, ASSET_TYPE::TEXT), "There is already a text with the name : " + name);
 	GAME_ASSERT(isAlreadyIn(font, ASSET_TYPE::FONT), "There is no such font with the name : " + font);
@@ -116,12 +117,12 @@ bool AssetManager::ChangeTextFont(const std::string& name, const std::string fon
 	return true;
 }
 
-bool AssetManager::ChangeTextColor(const std::string& name, const glm::vec3& color)
+bool AssetManager::ChangeTextColor(const std::string& name, const SDL_Color& color)
 {
 	GAME_ASSERT(isAlreadyIn(name, ASSET_TYPE::TEXT), "There is no such a text with the name : " + name);
 
 	TextProperties& text = s_Texts[name];
-	if (color.x == text.color.x && color.y == text.color.y && color.z == text.color.z) return false;
+	if (color.r == text.color.r && color.g == text.color.g && color.b == text.color.b) return false;
 
 	text.color = color;
 	SDL_Texture* texture = GenerateTextTexture(text.label, text.font, text.color);
@@ -205,9 +206,9 @@ void AssetManager::ChangeTexture(const std::string& name, SDL_Texture* texture, 
 	textureRef.height = height;
 }
 
-SDL_Texture* AssetManager::GenerateTextTexture(const std::string& label, const std::string& font, const glm::vec3& color)
+SDL_Texture* AssetManager::GenerateTextTexture(const std::string& label, const std::string& font, const SDL_Color& color)
 {
-	SDL_Surface* text_surface = TTF_RenderText_Solid(s_Fonts[font].font, label.c_str(), SDL_Color{ (unsigned char)color.x, (unsigned char)color.y, (unsigned char)color.z });
+	SDL_Surface* text_surface = TTF_RenderText_Solid(s_Fonts[font].font, label.c_str(), color);
 	GAME_ASSERT(text_surface, "Failed to create surface!!");
 
 	SDL_Texture* text_texture = SDL_CreateTextureFromSurface(Renderer::s_Renderer, text_surface);

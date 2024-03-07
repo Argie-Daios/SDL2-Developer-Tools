@@ -74,5 +74,5 @@ private:
 	friend class Edge;
 	friend class Condition;                           
 	friend class Parameter;
-	friend class Animator;
+	friend struct Animator;
 };

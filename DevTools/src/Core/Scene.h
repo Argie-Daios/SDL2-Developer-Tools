@@ -21,11 +21,15 @@ public:
 
 	Entity GetCamera();
 	Entity GetEntity(const std::string& name);
+
+	void Sort();
 private:
 	entt::entity FindEntity(const std::string& name);
 	bool nameExists(const std::string& name);
+	void InsertSorted(entt::entity entity);
 private:
 	entt::registry m_Registry;
+	std::vector<entt::entity> m_EntitiesVector;
 
 	friend class Application;
 	friend class Entity;
@@ -35,4 +39,5 @@ private:
 	friend struct Animator;
 	friend struct Text;
 	friend struct Collider;
+	friend class Renderer;
 };

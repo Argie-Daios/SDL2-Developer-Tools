@@ -125,6 +125,16 @@ bool Input::DoesMouseHover(const SDL_Rect& rect)
 	return rect.x + rect.w > mousePos.x && rect.y + rect.h > mousePos.y && mousePos.x + 1 > rect.x && mousePos.y + 1 > rect.y;
 }
 
+bool Input::IsWindowResized()
+{
+	return s_Event.type == SDL_WINDOWEVENT && s_Event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED;
+}
+
+glm::ivec2 Input::GetWindowDimensions()
+{
+	return glm::ivec2(s_Event.window.data1, s_Event.window.data2);
+}
+
 float Input::GetTimePressed()
 {
 	return s_PressedTime;

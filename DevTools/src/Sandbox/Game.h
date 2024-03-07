@@ -11,4 +11,5 @@ public:
 	Game();
 
 	virtual void Update() override;
+	virtual void Draw() override;
 };

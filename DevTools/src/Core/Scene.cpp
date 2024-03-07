@@ -20,7 +20,8 @@ Entity Scene::AddEntity(const std::string& name)
 	informationComponent.name = name;
 	ent.AddComponent<Children>();
 	ent.AddComponent<Transform>();
-	//m_Registry.sort<Transform>([](const Transform& left, const Transform& right) {return left.GetZValue() < right.GetZValue(); });
+	
+	InsertSorted(ent.handle());
 
 	return ent;
 }
@@ -38,12 +39,16 @@ void Scene::DeleteEntity(const std::string& name)
 	entt::entity entity = FindEntity(name);
 	GAME_ASSERT(entity != entt::null, "Entity does not exist");
 
+	m_EntitiesVector.erase(std::find(m_EntitiesVector.begin(), m_EntitiesVector.end(), entity));
+
 	m_Registry.destroy(entity);
 }
 
 void Scene::DeleteEntity(Entity entity)
 {
 	GAME_ASSERT(m_Registry.valid(entity.handle()), "There is no such entity");
+
+	m_EntitiesVector.erase(std::find(m_EntitiesVector.begin(), m_EntitiesVector.end(), entity.handle()));
 
 	m_Registry.destroy(entity.handle());
 }
@@ -59,6 +64,13 @@ Entity Scene::GetEntity(const std::string& name)
 	GAME_ASSERT(entity != entt::null, "Entity does not exist");
 
 	return Entity{ entity, this };
+}
+
+void Scene::Sort()
+{
+	std::sort(m_EntitiesVector.begin(), m_EntitiesVector.end(), [&](auto a, auto b) {
+		return m_Registry.get<Transform>(a).GetZValue() < m_Registry.get<Transform>(b).GetZValue();
+	});
 }
 
 entt::entity Scene::FindEntity(const std::string& name)
@@ -90,4 +102,24 @@ bool Scene::nameExists(const std::string& name)
 	}
 
 	return false;
+}
+
+void Scene::InsertSorted(entt::entity entity)
+{
+	auto it = m_EntitiesVector.begin();
+
+	for (it; it != m_EntitiesVector.end(); it++)
+	{
+		if (m_Registry.get<Transform>(*it).GetZValue() > m_Registry.get<Transform>(entity).GetZValue())
+			break;
+	}
+
+	if (it == m_EntitiesVector.end())
+	{
+		m_EntitiesVector.push_back(entity);
+	}
+	else
+	{
+		m_EntitiesVector.insert(it, entity);
+	}
 }

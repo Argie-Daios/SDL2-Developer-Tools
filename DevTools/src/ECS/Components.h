@@ -3,6 +3,7 @@
 #include "Tools/AnimationController/AnimationController.h"
 #include "Tools/AssetManager.h"
 #include "Core/Scene.h"
+#include "Tools/Color.h"
 
 #include <SDL.h>
 #include <string>
@@ -161,19 +162,19 @@ struct Text : public Component
 {
 public:
 	Text();
-	Text(const std::string& label, const std::string& font, const glm::vec3& color);
-	Text(const std::string& textID, const std::string& label, const std::string& font, const glm::vec3& color);
+	Text(const std::string& label, const std::string& font, const SDL_Color& color);
+	Text(const std::string& textID, const std::string& label, const std::string& font, const SDL_Color& color);
 	Text(const Text& text);
 
 	std::string GetLabel() const;
 	std::string GetFont() const;
 	std::string GetFontPath() const;
 	int GetFontSize() const;
-	glm::vec3 GetColor() const;
+	SDL_Color GetColor() const;
 	
 	void ChangeLabel(const std::string& label);
 	void ChangeFont(const std::string& font);
-	void ChangeColor(const glm::vec3& color);
+	void ChangeColor(const SDL_Color& color);
 private:
 	void UpdateMesh();
 private:
@@ -184,7 +185,7 @@ class ControlledEntity;
 struct Behaviour
 {
 	Behaviour() = default;
-	Behaviour(const Behaviour& behvaiour);
+	//Behaviour(const Behaviour& behvaiour) = default;
 
 	ControlledEntity* Instance = nullptr;
 

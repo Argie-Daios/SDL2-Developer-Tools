@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <glm/glm.hpp>
 
 class Window
 {
@@ -10,6 +11,8 @@ public:
 	~Window();
 
 	inline SDL_Window* Get() { return m_Window; }
+
+	inline void SetDimensions(const glm::ivec2& dims) { m_Width = dims.x; m_Height = dims.y; }
 
 	inline int GetWidth() { return m_Width; }
 	inline int GetHeight() { return m_Height; }

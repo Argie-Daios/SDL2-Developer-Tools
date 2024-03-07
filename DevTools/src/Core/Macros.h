@@ -7,7 +7,11 @@
 #include "Tools/Random.h"
 #include "Tools/Enums.h"
 
-#define GAME_ASSERT(x, y) { if(!(x)) { std::cout << y << std::endl; __debugbreak(); } }
+#ifdef GAME_DEBUG
+	#define GAME_ASSERT(x, y) { if(!(x)) { std::cout << y << std::endl; __debugbreak(); } }
+#else
+	#define GAME_ASSERT(x, y) { if(!(x)) {} }
+#endif
 
 template<typename T>
 using Ref = std::shared_ptr<T>;

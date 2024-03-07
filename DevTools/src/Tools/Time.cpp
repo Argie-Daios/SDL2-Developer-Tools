@@ -31,13 +31,19 @@ float Time::FPS()
 	static float timeElapsed = 0.0f;
 	static int frames = 0;
 	static float FPS = 0.0f;
+	static float interval = 0.1f;
 
 	timeElapsed += Time::DeltaTime();
 	frames++;
 
-	if (timeElapsed >= 1.0f)
+	if (timeElapsed >= interval)
 	{
 		FPS = (float)frames / timeElapsed;
+		if (timeElapsed >= 1.0f)
+		{
+			timeElapsed = 0.0F;
+			frames = 0;
+		}
 	}
 
 	return FPS;

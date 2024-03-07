@@ -33,12 +33,14 @@ public:
 		{
 			animator->ChangeBoolParameterValue("Running", true);
 			transform->SetFlip(SDL_FLIP_HORIZONTAL);
+			direction = -1;
 			transform->Translate(glm::vec2(-300.0f * Time::DeltaTime(), 0.0f));
 		}
 		if (Input::IsKeyPressed(Key::D) && !Attacking)
 		{
 			animator->ChangeBoolParameterValue("Running", true);
 			transform->SetFlip(SDL_FLIP_NONE);
+			direction = 1;
 			transform->Translate(glm::vec2(300.0f * Time::DeltaTime(), 0.0f));
 		}
 		if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
@@ -151,10 +153,15 @@ public:
 
 	IEnumerator Summon(Entity ent)
 	{
+		int counter = 0;
 		yield_return NewReturnType<WaitUntil>([&]() {
 			if (ent.GetComponent<Animation>().isComplete())
 			{
+				counter++;
+				if (counter == 3)
+				{
 					return true;
+				}
 			}
 
 			return false;
@@ -189,4 +196,5 @@ private:
 	Entity vortexPrefab;
 	Entity wizardPrefab;
 	bool Attacking = false;
+	int direction = 1;
 };

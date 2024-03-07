@@ -1,15 +1,16 @@
 #pragma once
 
 #include "Core/Scene.h"
+#include "Tools/Color.h"
 
 #include <unordered_map>
 #include <string>
 #include <entt.hpp>
 #include <glm/glm.hpp>
+#include <SDL_pixels.h>
 
 struct SDL_Texture;
 typedef struct _TTF_Font TTF_Font;
-struct SDL_Color;
 class Entity;
 class Scene;
 class AnimationController;
@@ -33,7 +34,7 @@ struct TextProperties
 {
 	std::string label = "-";
 	std::string font = "-";
-	glm::vec3 color;
+	SDL_Color color;
 };
 
 struct AnimationProperties
@@ -74,10 +75,10 @@ public:
 	static void LoadFont(const std::string& name, const std::string& filepath, int fontSize);
 	static Font& GetFont(const std::string& name);
 
-	static void LoadText(const std::string& name, const std::string& label, const std::string& font, const glm::vec3& color);
+	static void LoadText(const std::string& name, const std::string& label, const std::string& font, const SDL_Color& color);
 	static bool ChangeTextLabel(const std::string& name, const std::string& label);
 	static bool ChangeTextFont(const std::string& name, const std::string font);
-	static bool ChangeTextColor(const std::string& name, const glm::vec3& color);
+	static bool ChangeTextColor(const std::string& name, const SDL_Color& color);
 	static TextProperties& GetText(const std::string& name);
 
 	static void CreatePrefab(const std::string& name, Entity entity);
@@ -91,7 +92,7 @@ public:
 private:
 	static bool isAlreadyIn(const std::string& name, const ASSET_TYPE& type);
 	static void ChangeTexture(const std::string& name, SDL_Texture* texture, int width, int height);
-	static SDL_Texture* GenerateTextTexture(const std::string& label, const std::string& font, const glm::vec3& color);
+	static SDL_Texture* GenerateTextTexture(const std::string& label, const std::string& font, const SDL_Color& color);
 
 	static void ClearTextures();
 	static void ClearFonts();

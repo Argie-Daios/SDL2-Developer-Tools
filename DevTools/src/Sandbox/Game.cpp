@@ -7,6 +7,8 @@
 #include "Script.h"
 #include "Tools/Color.h"
 
+#include <SDL_ttf.h>
+
 Game::Game()
 	: Application()
 {
@@ -16,11 +18,13 @@ Game::Game()
 	AssetManager::LoadTexture("X", "assets/textures/X.png");
 	AssetManager::LoadTexture("Vortex", "assets/textures/Effects/Vortex.png");
 	AssetManager::LoadTexture("Mystic_Magic", "assets/textures/Effects/Mystic_Magic.png");
+	AssetManager::LoadTexture("Blue_Magic", "assets/textures/Effects/Blue_Magic.png");
 	AssetManager::LoadAnimation("Vortex_Animation", AnimationProperties{ "Vortex", 63, 9, 7, 0, 48 });
 	AssetManager::LoadAnimation("Wizard_Idle_Animation", AnimationProperties{ "Wizard_Idle", 6, 6, 1, 0, 6 });
 	AssetManager::LoadAnimation("Wizard_Run_Animation", AnimationProperties{ "Wizard_Run", 8, 8, 1, 0, 8 });
 	AssetManager::LoadAnimation("Wizard_Attack_Animation", AnimationProperties{ "Wizard_Attack", 8, 8, 1, 0, 8 });
 	AssetManager::LoadAnimation("Mystic_Magic_Animation", AnimationProperties{ "Mystic_Magic", 30, 5, 6, 0, 30 });
+	AssetManager::LoadAnimation("Blue_Magic_Animation", AnimationProperties{ "Blue_Magic", 20, 5, 4, 0, 20 });
 	AssetManager::LoadFont("Arial", "assets/fonts/arial.ttf", 50);
 	AssetManager::LoadFont("Old_English", "assets/fonts/OldEnglish.ttf", 60);
 
@@ -58,7 +62,7 @@ Game::Game()
 
 	transformComponent.SetPosition(glm::vec2(0, 0));
 	transformComponent.SetScale(glm::vec2(4, 4));
-	transformComponent.SetZValue(3.0f);
+	transformComponent.SetZValue(7.0f);
 
 	GetCurrentScene()->GetEntity("Wizard").AddComponent<Behaviour>().Bind<Wizard>();
 
@@ -86,17 +90,15 @@ Game::Game()
 	GetCurrentScene()->DeleteEntity("X");
 
 	Entity entity = GetCurrentScene()->AddEntity("FPS counter");
-	entity.AddComponent<Text>("TextFPS", "0", "Arial", glm::vec3(0, 255, 0));
+	entity.AddComponent<Text>("TextFPS", "0", "Arial", Color::GREEN);
+
+	TTF_Font* font = TTF_OpenFont("assets/fonts/arial.ttf", 50);
+	if (font == nullptr) std::cout << "WTF NIGGA BITCH" << std::endl;
 }
 
 void Game::Update()
 {
 	Application::Update();
-
-	if (Input::IsKeyDown(Key::P))
-	{
-		Renderer::SetRender(false);
-	}
 
 	Entity entity = GetCurrentScene()->GetEntity("FPS counter");
 	auto& textComponent = entity.GetComponent<Text>();
@@ -107,24 +109,30 @@ void Game::Update()
 		textComponent.ChangeLabel(std::to_string((int)Time::FPS()));
 		if (fps >= 400)
 		{
-			if (textComponent.GetColor() != glm::vec3(0.0f, 255.0f, 0.0f))
+			if (!Color::Compare(textComponent.GetColor(), Color::GREEN))
 			{
-				std::cout << "Changed to Green" << std::endl;
-				textComponent.ChangeColor(glm::vec3(0.0f, 255.0f, 0.0f));
+				textComponent.ChangeColor(Color::GREEN);
 			}
 		}
 		else if (fps >= 300)
 		{
-			if (textComponent.GetColor() != glm::vec3(255.0f, 165.0f, 0.0f))
+			if (!Color::Compare(textComponent.GetColor(), Color::ORANGE))
 			{
-				std::cout << "Changed to Orange" << std::endl;
-				textComponent.ChangeColor(glm::vec3(255.0f, 165.0f, 0.0f));
+				textComponent.ChangeColor(Color::ORANGE);
 			}
 		}
-		else if(textComponent.GetColor() != glm::vec3(255.0f, 0.0f, 0.0f))
+		else if(!Color::Compare(textComponent.GetColor(), Color::RED))
 		{
-			std::cout << "Changed to Red" << std::endl;
-			textComponent.ChangeColor(glm::vec3(255.0f, 0.0f, 0.0f));
+			textComponent.ChangeColor(Color::RED);
 		}
 	}
+}
+
+void Game::Draw()
+{
+	Application::Draw();
+	
+	glm::vec2 position = GetCurrentScene()->GetEntity("Wizard").transform().GetPosition();
+	glm::vec2 size = GetCurrentScene()->GetEntity("Wizard").transform().GetSize() * GetCurrentScene()->GetEntity("Wizard").transform().GetScale();
+	Renderer::DrawRect(SDL_Rect{ (int)position.x, (int)position.y, (int)size.x, (int)size.y});
 }
