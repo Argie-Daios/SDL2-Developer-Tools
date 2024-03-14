@@ -21,6 +21,12 @@ constexpr Ref<T> CreateRef(Args&& ... args)
 	return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
+template<typename Type1, typename Type2>
+constexpr bool isOfType(Type2 object)
+{
+	return typeid(object) == typeid(Type1);
+}
+
 template <typename T>
 constexpr std::string to_string_with_precision(const T a_value, const int n = 6)
 {

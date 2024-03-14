@@ -224,11 +224,11 @@ private:
 
 		auto& animationSrc = entitySrc.GetComponent<Animation>();
 
-		auto animationID = animationSrc.GetAnimationID();
+		auto spritesheetID = animationSrc.GetSpritesheetID();
 		auto delay = animationSrc.GetDelay();
 		auto loop = animationSrc.GetLoop();
 
-		auto& animation = entityDst.AddComponent<Animation>(animationID, delay, loop);
+		auto& animation = entityDst.AddComponent<Animation>(spritesheetID, delay, loop);
 	}
 
 	static void CopyAnimator(Entity entitySrc, Entity entityDst)

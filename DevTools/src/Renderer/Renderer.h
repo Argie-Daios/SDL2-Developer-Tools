@@ -27,4 +27,5 @@ private:
 	static SDL_Renderer* s_Renderer;
 	static SDL_Color s_RenderDrawColor;
 	friend class AssetManager;
+	friend class Game;
 };

@@ -5,24 +5,12 @@
 
 #include <algorithm>
 
-void AnimationNode::Update()
-{
-	int index = (int)(timeElapsed / delay);
-	currentFrame = index % AssetManager::GetAnimation(animationID).lastFrame;
-	timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
-}
-
-bool AnimationNode::isComplete()
-{
-	return timeElapsed >= delay * AssetManager::GetAnimation(animationID).lastFrame;
-}
-
 AnimationController::AnimationController()
 {
 	
 }
 
-void AnimationController::Update(std::string& current, std::unordered_map<std::string, Ref<Parameter>>& parameters)
+void AnimationController::Update(std::string& current, std::unordered_map<std::string, Ref<Parameter>>& parameters) const
 {
 	if (current.empty()) return;
 
@@ -48,8 +36,7 @@ void AnimationController::Update(std::string& current, std::unordered_map<std::s
 		}
 		if ((!edge.GetExitTime() && canPass) || (elem.isComplete() && canPass))
 		{
-			elem.timeElapsed = 0.0f;
-			elem.currentFrame = 0;
+			elem.Reset();
 			current = edge.m_DestinationAnimationName;
 			return;
 		}
@@ -57,7 +44,7 @@ void AnimationController::Update(std::string& current, std::unordered_map<std::s
 
 }
 
-AnimationNode AnimationController::GetCurrentAnimation(std::string current)
+AnimationNode AnimationController::GetCurrentAnimation(std::string current) const
 {
 	GAME_ASSERT(!current.empty(), "Empty");
 
@@ -347,7 +334,7 @@ int AnimationController::FindLink(const std::string& source, const std::string& 
 	return -1;
 }
 
-std::string AnimationController::GetParameterName(Parameter* parameter)
+std::string AnimationController::GetParameterName(Parameter* parameter) const
 {
 	for (auto param : m_Parameters)
 	{

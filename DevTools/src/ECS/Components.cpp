@@ -124,13 +124,13 @@ void Transform::SetFlip(SDL_RendererFlip flip)
 SpriteRenderer::SpriteRenderer()
 	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID("-"), tintColor(255.0f, 255.0f, 255.0f), source{0,0,0,0}
 {
-
+	
 }
 
 SpriteRenderer::SpriteRenderer(const std::string& textureID)
 	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), textureID(textureID)
 {
-	
+	UpdateSprite();
 }
 
 SpriteRenderer::SpriteRenderer(const SpriteRenderer& spriteRenderer)
@@ -151,7 +151,7 @@ void SpriteRenderer::ChangeTextureID(std::string textureID)
 void SpriteRenderer::UpdateSprite()
 {
 	Entity en = { m_Entity, m_Scene };
-	Texture& texture = AssetManager::GetTexture(textureID);
+	const Texture& texture = AssetManager::GetTexture(textureID);
 	int texWidth = texture.width;
 	int texHeight = texture.height;
 
@@ -167,8 +167,8 @@ Animation::Animation()
 
 }
 
-Animation::Animation(const std::string& animationID, float delay, bool loop)
-	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationNode(AnimationNode{animationID, 0, delay, loop})
+Animation::Animation(const std::string& spritesheetID, float delay, bool loop)
+	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), animationNode(AnimationNode{ spritesheetID, 0, delay, loop})
 {
 	UpdateMesh();
 }
@@ -186,14 +186,13 @@ void Animation::Animate()
 		UpdateMesh();
 	}
 
-	glm::ivec2 indexes = CalculateCurrentFrame();
-	glm::vec2 size = transformComponent.GetSize();
+	if (isComplete())
+	{
+		animationNode.currentFrame = 0;
+		animationNode.timeElapsed = 0.0f;
+	}
 
-	animationNode.timeElapsed += Time::SecondsToMilliseconds(Time::DeltaTime());
-
-	//std::cout << "Current Frame : " << currentFrame << " Col Index : " << indexes.x << " Row Index : " << indexes.y << std::endl;
-
-	spriteRenderer.SetSource(SDL_Rect{indexes.x * (int)size.x, indexes.y * (int)size.y, (int)size.x, (int)size.y });
+	animationNode.Update();
 }
 
 bool Animation::isComplete()
@@ -202,38 +201,17 @@ bool Animation::isComplete()
 	return animationNode.isComplete();
 }
 
-glm::ivec2 Animation::CalculateCurrentFrame()
-{	
-	AnimationProperties animationProps = AssetManager::GetAnimation(animationNode.animationID);
-	int index = (int)(animationNode.timeElapsed / animationNode.delay);
-	int colIndex, rowIndex;
-
-	animationNode.currentFrame = index % animationProps.totalFrames;
-
-	if (isComplete())
-	{
-		animationNode.currentFrame = 0;
-		animationNode.timeElapsed = 0.0f;
-		index = (int)(animationNode.timeElapsed / animationNode.delay);
-	}
-
-	colIndex = index % animationProps.totalFramesPerRow;
-	rowIndex = animationNode.currentFrame / animationProps.totalFramesPerRow;
-
-	// std::cout << "Row Index : " << rowIndex << " currentFrame : " << currentFrame << " totalFrames : " << animationProps.totalFrames << std::endl;
-
-	return glm::ivec2(colIndex, rowIndex);
-}
-
 void Animation::UpdateMesh()
 {
 	Entity e = { m_Entity, m_Scene };
-	AnimationProperties& animationProps = AssetManager::GetAnimation(animationNode.animationID);
-	Texture& texture = AssetManager::GetTexture(animationProps.textureID);
+	std::string textureID = GetTextureID();
+	const Texture& texture = AssetManager::GetTexture(textureID);
+	const Spritesheet& spriteSheet = AssetManager::GetSpritesheet(GetSpritesheetID());
 	auto& transformComponent = e.transform();
 	auto& spriteRenderer = e.AddIfNotExistsOrGet<SpriteRenderer>();
-	spriteRenderer.ChangeTextureID(animationProps.textureID);
-	transformComponent.SetSize(glm::vec2(texture.width / animationProps.totalFramesPerRow, texture.height / animationProps.totalRows));
+	spriteRenderer.ChangeTextureID(textureID);
+	glm::vec2 size = glm::vec2(texture.width, texture.height);
+	transformComponent.SetSize(size);
 }
 
 // Animator
@@ -247,7 +225,7 @@ Animator::Animator()
 Animator::Animator(const std::string& name)
 	: Component(Entity::recentEntity.handle, Entity::recentEntity.scene), m_AnimationControllerID(name)
 {
-	AnimationController& controller = AssetManager::GetAnimationController(name);
+	const AnimationController& controller = AssetManager::GetAnimationController(name);
 	m_Current = controller.m_Entry;
 	m_CurrentAnimation.m_Entity = m_Entity;
 	m_CurrentAnimation.m_Scene = m_Scene;
@@ -266,7 +244,7 @@ Animator::Animator(const std::string& name)
 
 void Animator::Update()
 {
-	AnimationController& controller = AssetManager::GetAnimationController(m_AnimationControllerID);
+	const AnimationController& controller = AssetManager::GetAnimationController(m_AnimationControllerID);
 	controller.Update(m_Current, m_Parameters);
 	if (controller.GetCurrentAnimation(m_Current).animationID != m_CurrentAnimation.animationNode.animationID)
 	{

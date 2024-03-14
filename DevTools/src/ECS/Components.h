@@ -101,27 +101,19 @@ struct Animation : public Component
 {
 public:
 	Animation();
-	Animation(const std::string& animationID, float delay = 100.0f, bool loop = true);
+	Animation(const std::string& spritesheetID, float delay = 100.0f, bool loop = true);
 	Animation(const Animation&) = default;
 
 	void Animate();
-
 	bool isComplete();
 
 	std::string GetAnimationID() const { return animationNode.animationID; }
-	std::string GetTextureID() const { return AssetManager::GetAnimation(animationNode.animationID).textureID; }
- 	int GetTotalFrames() const { return AssetManager::GetAnimation(animationNode.animationID).totalFrames; }
-	int GetTotalFramesPerRow() const { return AssetManager::GetAnimation(animationNode.animationID).totalFramesPerRow; }
-	int GetTotalRows() const { return AssetManager::GetAnimation(animationNode.animationID).totalRows; }
-	int GetFristFrame() const { return AssetManager::GetAnimation(animationNode.animationID).firstFrame; }
-	int GetLastFrame() const { return AssetManager::GetAnimation(animationNode.animationID).lastFrame; }
+	std::string GetSpritesheetID() const { return AssetManager::GetAnimation(animationNode.animationID).spritesheetID; }
+	std::string GetTextureID() const { return AssetManager::GetTextureIDFromSpritesheet(GetSpritesheetID(), animationNode.currentFrame); }
+ 	int GetTotalFrames() const { return AssetManager::GetAnimation(animationNode.animationID).frames; }
 	float GetDelay() const { return animationNode.delay; }
 	bool GetLoop() const { return animationNode.loop; }
-
-	void ChangeDelay(float delay) { animationNode.delay = delay; }
-	void ChangeLoop(bool loop) { animationNode.loop = loop; }
 private:
-	glm::ivec2 CalculateCurrentFrame();
 	void UpdateMesh();
 private:
 	AnimationNode animationNode;

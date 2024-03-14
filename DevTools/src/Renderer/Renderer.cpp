@@ -44,6 +44,8 @@ void Renderer::Draw(entt::registry& reg)
 
 		auto cameraTransformComponent = Application::GetCurrentScene()->GetCamera().GetComponent<Transform>();
 
+		// glm::vec2 centeredPos = position - (size * transformComponent.GetScale()) / glm::vec2(2.0f, 2.0f);
+
 		SDL_Rect destination = { (int)(position.x - cameraTransformComponent.GetPosition().x),
 			(int)(position.y - cameraTransformComponent.GetPosition().y),
 			(int)(size.x * transformComponent.GetScale().x),
